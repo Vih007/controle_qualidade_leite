@@ -1,0 +1,630 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;700&display=swap'); /* importa a fonte barlow semi condensed do google fonts */
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&display=swap'); /* importa a fonte barlow normal, usada pra logo cql */
+
+:root { /* aqui a gente define variáveis que podem ser usadas em todo o css */
+  --fonte-padrao: "Barlow Semi Condensed", sans-serif; /* define a fonte principal do site */
+  --cor-header: white; /* cor do fundo do cabeçalho */
+  --decoracao-header: linear-gradient(to right, #94BD09, #508FF6); /* gradiente de cor pra faixa de cima */
+  --cor-fundo: rgba(80, 143, 246, 0.2); /* cor de fundo geral do body, um azul clarinho */
+  --cor-destaque1: #94BD09; /* cor verde principal pros destaques */
+  --cor-destaque2: #508FF6; /* cor azul secundária pros destaques */
+  --cor-botao-excluir: #d32f2fd3; /* cor pro botão de excluir */
+  --cor-texto-link-menu: #222; /* cor do texto dos links do menu lateral */
+  --cor-texto-link-menu-hover: #4a6b4d; /* cor do texto do link do menu no passar do mouse */
+  --cor-link-ativo-fundo: #4CAF50; /* cor de fundo do link do menu que está ativo (verde) */
+  --cor-link-ativo-texto: #fff; /* cor do texto do link do menu que está ativo (branco) */
+}
+
+/*== ANIMAÇÕES ==*/
+@keyframes cairSuave { /* animação pra elementos aparecerem caindo suavemente */
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*animação dos botões mais genericos*/
+@keyframes botaoHover { /* animação pro botão levantar um pouquinho no hover */
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes botaoClick { /* animação pro botão dar uma afundada no clique */
+  0% {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/*== BODY CONFIGURAÇÕES ==*/
+* { /* aplica a todos os elementos */
+  box-sizing: border-box; /* garante que padding e borda não aumentem o tamanho do elemento */
+}
+
+body,
+html {
+  min-height: 100vh; /* altura mínima da página é 100% da tela */
+  margin: 0; /* remove margem padrão do navegador */
+}
+
+body {
+  background-color: var(--cor-fundo); /* usa a cor de fundo definida */
+  font-family: var(--fonte-padrao); /* aplica a fonte padrão a todo o texto */
+  opacity: 0;
+  animation: cairSuave 0.8s ease-out forwards; /* aplica a animação de cair suave */
+}
+
+/*== DEGRADE NO DO CABEÇALHO ==*/
+.faixa-decorada {
+  height: 10px; /* altura da faixa decorada */
+  background: var(--decoracao-header); /* usa o gradiente definido */
+  /* não é mais fixa */
+}
+
+/* === HEADER === */
+header {
+  display: flex; /* organiza os itens em linha */
+  align-items: center; /* alinha os itens verticalmente no centro */
+  justify-content: space-between; /* distribui o espaço entre os itens */
+  padding: 10px 30px; /* padding diminuído pra diminuir a altura do cabeçalho */
+  background-color: var(--cor-header); /* cor de fundo do cabeçalho */
+  width: 100%; /* cabeçalho ocupa 100% da largura */
+  box-sizing: border-box;
+  gap: 20px; /* espaço entre os itens do cabeçalho */
+  /* não é mais fixa */
+}
+
+/*configurando a fonte do nome do site CQL*/
+.barlow-regular { /* essa classe é específica pra fonte da logo "cql" */
+  font-family: "Barlow", sans-serif; /* usa a barlow normal pra logo, conforme o design */
+  font-weight: 400;
+  font-style: normal;
+}
+
+.logo-container { /* container da logo e texto */
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.texto-logo { /* container do "cql" e "controle de qualidade do leite" */
+  display: flex;
+  flex-direction: column;
+  text-align: justify;
+}
+
+.texto-logo h1 { /* estilo pro "cql" */
+  margin: 0;
+  font-size: clamp(28px, 5vw, 48px); /* tamanho da fonte responsivo */
+  letter-spacing: 10px; /* espaçamento entre as letras */
+}
+
+.texto-logo h2 { /* estilo pro "controle de qualidade do leite" */
+  font-size: clamp(14px, 2vw, 20px);
+  margin: 0;
+}
+/* === LOGO === */
+.logo-container .logo { /* imagem da logo */
+  object-fit: contain;
+  width: 100px;
+  height: auto;
+}
+
+/*== BOTÕES DE PERFIL E LOGOUT==*/
+.caixa-perfil { /* container dos botões de perfil e sair */
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.caixa-perfil button img { /* imagem dentro dos botões de perfil/sair */
+  width: 48px;
+  height: 48px;
+}
+
+.info-do-usuario { /* a caixinha que aparece com as infos do usuário */
+  position: absolute;
+  top: 58px; /* posiciona abaixo do ícone do perfil */
+  right: 0;
+  background-color: rgba(28, 28, 30, 0.95); /* fundo escuro quase transparente */
+  padding: 14px 18px;
+  border-radius: 12px;
+  min-width: 220px;
+  font-size: 14px;
+  z-index: 999;
+  text-align: left;
+  color: #f2f2f2;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px); /* efeito de desfoque no fundo */
+  animation: aparecerPerfil 0.3s ease; /* animação pra caixinha aparecer */
+}
+
+.info-do-usuario p { /* parágrafos dentro da caixinha de info */
+  margin: 6px 0;
+}
+
+.info-do-usuario p:first-child { /* primeiro parágrafo da info do usuário (nome) */
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+}
+.info-do-usuario p:last-child { /* último parágrafo da info do usuário (email) */
+  font-size: 13px;
+  color: #c5c5c5;
+}
+
+@keyframes aparecerPerfil { /* animação pra caixinha de info do usuário */
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* === CONTAINER GERAL === */
+.painel { /* o container principal do conteúdo abaixo do header */
+  display: flex;
+  min-height: 100vh; /* altura mínima da página é 100% da tela */
+  margin-top: 0; /* não precisa de margem extra, pois o cabeçalho não é fixo */
+  position: relative;
+}
+
+/* === MENU LATERAL === */
+.menu-lateral { /* a barra de navegação lateral */
+  background-color: #fff;
+  padding: 20px; /* espaço interno do menu lateral */
+  width: 200px; /* largura fixa do menu lateral */
+  font-size: 1.1em;
+  /* não é mais fixa */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* sombra no menu lateral pra dar profundidade */
+}
+
+.menu-lateral h2 { /* título "comandos" */
+  font-size: clamp(18px, 2vw, 24px);
+  margin-bottom: 20px;
+  background-color: var(--cor-destaque1); /* fundo verde */
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  margin: 0 10px 20px 10px;
+}
+
+.menu-lateral ul { /* lista de itens do menu */
+  list-style: none; /* remove marcadores de lista */
+  padding: 0;
+  margin: 0;
+}
+
+.menu-lateral li { /* cada item da lista do menu */
+  /* margens e paddings são controlados pelo <a> */
+}
+
+.menu-lateral a { /* os links dentro do menu lateral */
+  text-decoration: none; /* remove sublinhado */
+  color: var(--cor-texto-link-menu); /* cor do texto dos links */
+  font-weight: bold;
+  display: block; /* ocupa todo o espaço do li, pra área clicável */
+  padding: 10px 20px; /* espaço interno dos links */
+  transition: background-color 0.2s ease, color 0.2s ease; /* transição suave pra efeitos */
+  border-bottom: 1px solid #c8dfca; /* linha separadora entre os links */
+}
+/* Último item da lista pode não ter a borda inferior */
+.menu-lateral ul li:last-child a {
+    border-bottom: none; /* remove a borda do último link */
+}
+
+.menu-lateral a:hover { /* efeito no passar do mouse no link do menu */
+  background-color: #e0e0e0; /* fundo cinza claro */
+  color: var(--cor-texto-link-menu-hover); /* cor do texto no hover */
+}
+
+/* Estilo para o link ativo (verde, conforme o design) */
+.menu-lateral a.active { /* quando o link está selecionado (seção ativa) */
+    background-color: var(--cor-destaque1); /* fundo verde */
+    color: var(--cor-link-ativo-texto); /* texto branco */
+    pointer-events: none; /* não permite clicar se já estiver ativo */
+    border-bottom: 1px solid var(--cor-destaque1); /* borda verde pra combinar */
+}
+
+/* === ÁREA PRINCIPAL DE CONTEÚDO === */
+.conteudo { /* a área onde o conteúdo das seções aparece (lista de vacas, cadastro, etc.) */
+  flex: 1; /* ocupa o espaço restante */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* alinha o conteúdo horizontalmente no centro */
+  padding: 40px; /* espaço interno */
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 7px;
+  gap: 10px;
+  margin-left: 0; /* não precisa de margem, pois o menu lateral não é fixo */
+  width: 100%; /* ocupa a largura total disponível dentro do .painel */
+  min-height: 100vh; /* altura mínima ajustada */
+}
+
+/* === TABELA === */
+.tabela { /* estilo das tabelas (lista de vacas, produção, etc.) */
+  width: 100%;
+  border-collapse: separate; /* bordas da célula separadas */
+  border-spacing: 0;
+  margin-top: 16px;
+  font-family: var(--fonte-padrao); /* aplicando a barlow semi condensed à tabela */
+  font-size: clamp(13px, 1.2vw, 16px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden; /* esconde o que passar da borda arredondada */
+}
+
+.tabela thead { /* cabeçalho da tabela */
+  background-color: var(--cor-destaque1); /* fundo verde */
+  color: white;
+}
+
+.tabela th,
+.tabela td { /* células do cabeçalho e do corpo da tabela */
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.tabela tbody tr:nth-child(even) { /* linhas pares da tabela */
+  background-color: #f9f9f9; /* fundo cinza claro */
+}
+
+.tabela tbody tr:nth-child(odd) { /* linhas ímpares da tabela */
+  background-color: #ffffff; /* fundo branco */
+}
+
+.tabela tbody tr:hover { /* efeito no passar do mouse na linha da tabela */
+  background-color: rgba(80, 143, 246, 0.1); /* fundo azul bem clarinho */
+  transition: background-color 0.3s ease;
+}
+
+/* === COMPONENTE PADRÃO DE BLOCO (cadastro, editar, produção, relatórios) === */
+.bloco-pagina { /* estilo de blocos de conteúdo como cadastro */
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  max-width: 650px;
+  margin: 30px auto;
+  width: 100%;
+}
+
+.bloco-pagina h3 { /* título dentro desses blocos */
+  font-size: clamp(16px, 2vw, 20px);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* === MENSAGEM DE SUCESSO === */
+.mensagem { /* estilo das mensagens de sucesso/erro */
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* === FORMULÁRIOS PADRÃO === */
+.form-padrao { /* estilo geral dos formulários */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-padrao label { /* labels dos campos do formulário */
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.form-padrao input:not([type="checkbox"]), /* inputs que não são checkbox, select e textarea */
+.form-padrao select,
+.form-padrao textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: clamp(14px, 1.2vw, 16px);
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Campo específico para inputs do cadastro */
+#cadastro input[type="text"] { /* input de texto do formulário de cadastro */
+  padding: 10px;
+  font-size: clamp(14px, 1.2vw, 16px);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Grupo de Checkboxes para Úbere */
+.grupo-uberes { /* container para os checkboxes de úbere */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.opcao-ubre { /* cada opção de úbere */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/*== BOTÕES DO HEADER ==*/
+.caixa-perfil button { /* botões de perfil no cabeçalho */
+  all: unset; /* remove todos os estilos padrão do botão */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.caixa-perfil button:hover { /* efeito no hover */
+  animation: botaoHover 0.3s ease forwards;
+}
+
+.caixa-perfi button:active { /* efeito no clique */
+  animation: botaoClick 0.2s ease forwards;
+}
+
+/* === BOTÕES === */
+.btn { /* botões gerais */
+    padding: 12px 20px;
+    background-color:var(--cor-destaque1); /* cor de destaque verde */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn:hover { /* efeito no hover */
+    background-color:var(--cor-destaque2); /* cor de destaque azul */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn:active { /* efeito no clique */
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Estilo para todos os botões de ação */
+.btn-editar, .btn-salvar, .btn-excluir { /* botões de ação da tabela */
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+}
+
+/* Botão Editar */
+.btn-editar {
+    background-color: var(--cor-destaque2); /* azul */
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: var(--cor-destaque2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Botão Salvar */
+.btn-salvar {
+    background-color: var(--cor-destaque1); /* verde */
+    color: white;
+}
+
+.btn-salvar:hover {
+    background-color: var(--cor-destaque1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Botão Excluir (se aplicável) */
+.btn-excluir {
+    background-color: red;
+    color: white;
+}
+
+.btn-excluir:hover {
+    background-color: var(--cor-botao-excluir);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Efeito ao clicar */
+.btn-editar:active, .btn-salvar:active, .btn-excluir:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Estilo para o input durante edição */
+.input-edicao { /* input que aparece quando edita um campo da tabela */
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 80%;
+    font-size: 14px;
+}
+
+.input-edicao:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+/* Botão com hover diferente em relatórios */
+#relatorios .btn:hover { /* efeito diferente pro botão de relatório */
+  transform: scale(1.03);
+  background-color: #7ba51e;
+}
+
+/* === BARRA DE BUSCA === */
+.input-busca { /* estilo do campo de busca */
+    flex: 1;
+    max-width: 400px;
+    padding: 12px 50px;
+    font-size: 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.input-busca:focus { /* efeito no foco do campo de busca */
+    outline: none;
+    border-color:var(--cor-destaque2);
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.2);
+}
+
+.input-busca::placeholder { /* cor do placeholder */
+    color: #9e9e9e;
+    opacity: 1;
+}
+
+
+/* === RELATÓRIOS === */
+.lista-relatorios { /* lista de itens de relatório */
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.relatorio-item { /* cada item de relatório */
+  background-color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: clamp(12px, 1vw, 14px);
+}
+
+.relatorio-item:hover { /* efeito no hover */
+  background-color: #f4f4f4;
+}
+
+.relatorio-item span { /* texto do item de relatório */
+  flex: 1;
+}
+
+.relatorio-item a { /* link de download do relatório */
+  background-color: var(--cor-destaque1); /* verde */
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) { /* estilos pra telas menores (celulares, tablets) */
+  header { /* cabeçalho em telas menores */
+    height: auto; /* deixa a altura automática pelo padding */
+    padding: 10px 15px;
+  }
+  .faixa-decorada { /* faixa decorada em telas menores */
+    /* não é fixa, então top não se aplica da mesma forma */
+  }
+  .painel { /* painel principal em telas menores */
+    margin-top: 0; /* não tem cabeçalho fixo pra compensar */
+  }
+
+  .menu-lateral { /* menu lateral em telas menores */
+    width: 150px;
+    padding: 10px;
+    height: auto; /* altura automática */
+    /* não é fixo */
+  }
+  .menu-lateral h2 {
+    font-size: 18px;
+    padding: 8px;
+  }
+  .menu-lateral a {
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+
+  .conteudo { /* área de conteúdo em telas menores */
+    margin-left: 0; /* não tem menu lateral fixo pra compensar */
+    width: 100%; /* ocupa largura total */
+    padding: 15px;
+  }
+
+  .tabela th,
+  .tabela td { /* tabela em telas menores */
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .tabela {
+    font-size: 14px;
+  }
+
+  .bloco-pagina { /* blocos de página em telas menores */
+    padding: 10px;
+    margin: 15px 5px;
+  }
+
+  .bloco-pagina h3 {
+    font-size: 16px;
+  }
+
+  .btn,
+  #relatorios .btn { /* botões em telas menores */
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .relatorio-item { /* itens de relatório em telas menores */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .relatorio-item a {
+    align-self: flex-end;
+  }
+
+  .logo-container .logo { /* logo em telas menores */
+    width: 80px;
+  }
+  .texto-logo h1 { /* texto da logo "cql" em telas menores */
+    font-size: clamp(20px, 4vw, 36px);
+  }
+  .texto-logo h2 { /* texto da logo "controle de qualidade..." em telas menores */
+    font-size: clamp(10px, 1.5vw, 16px);
+  }
+  .caixa-perfil button img { /* ícones de perfil em telas menores */
+    width: 38px;
+    height: 38px;
+  }
+}
