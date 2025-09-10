@@ -1,0 +1,41 @@
+Requisitos Específicos
+Requisitos Funcionais
+3.1 Cadastro de Animais
+RF01: O sistema deve permitir cadastrar vacas, bezerros e machos;
+RF02: Vacas e bezerros podem ter nome; machos e vacas nelore brancas não têm nome, apenas ID;
+RF03: Deve ser possível registrar: nome (se aplicável), idade, ID, número de crias, sexo, status de prenhez (com dias), dia da parição.
+
+
+3.1.2 Produção e Qualidade do Leite
+RF04: O sistema deve registrar a quantidade total de leite produzido por vaca.
+RF05: O sistema deve permitir inserir o resultado do teste de mastite (positivo/negativo).
+RF06: Em caso positivo, deve permitir especificar o tipo e tratamento da mastite.
+RF07: O sistema deve permitir anotar observações sobre a cor e aspecto do leite (normal ou anormal).
+RF08: O sistema deve exibir um alerta visual/sonoro se houver anomalias no leite ou problemas com a vaca, indicando a necessidade de contato com o professor.
+
+
+3.1.3 Observações e Alertas
+RF09: Deve haver um campo para observações rápidas com sugestões automáticas ou pré-definidas para acelerar o processo;
+RF10: Professores devem receber alertas em tempo real quando uma vaca apresentar anomalias.
+3.1.4 Escrituramento Zootécnico
+RF11: O sistema deve manter o histórico da vaca (produção de leite, prenhez, saúde, etc.).
+RF12: Deve permitir visualizar todos os dados da vaca em uma única tela.
+RF13: Quando uma vaca for descartada (abatida), ela deve ser removida do rebanho ativo e registrada na seção "Animais Abatidos".
+
+
+3.1.5 Funcionalidades para o Aluno
+RF14: Alunos podem cadastrar e editar dados das vacas;
+RF15: O sistema deve permitir aplicar filtros para pesquisa de vacas por nome, ID ou status;
+RF16: Deve ser possível visualizar os dados das crias de uma vaca a partir do perfil da mãe;
+3.1.6 Funcionalidades para o Professor
+RF17: Professores têm as mesmas permissões que os alunos;
+RF18: Professores devem receber alertas de emergência gerados por observações críticas;
+RF19: Professores podem gerar relatórios do rebanho, produção e saúde dos animais;
+RF20: Professor irá adicionar ou excluir os alunos que terão acesso ao sistema; 
+
+3.2 Requisitos Não Funcionais
+RNF01: O sistema deve funcionar em computadores com sistemas Windows e Linux;
+RNF02: A interface deve ser intuitiva e acessível, com ícones e mensagens claras;
+RNF03: Os dados devem ser salvos automaticamente a cada novo cadastro ou alteração;
+RNF04: Os dados devem ser armazenados em formato seguro com backup periódico;
+RNF05: O sistema deve ser projetado com arquitetura modular para facilitar manutenção e expansão.
