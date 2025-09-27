@@ -440,6 +440,99 @@ function excluirTeste(id, button) {
   }
 }
 
+// Adicione este listener para o evento 'change' do input de arquivo
+// Ele irá apenas atualizar o nome do arquivo selecionado no campo de texto
+document.getElementById('arquivo_relatorio').addEventListener('change', function() {
+    const fileName = this.files[0] ? this.files[0].name : 'Nenhum arquivo escolhido';
+    document.getElementById('nome-arquivo-selecionado').textContent = fileName;
+});
+
+
+/// ... (outras funções do seu script)
+
+// Adicione este listener para o evento 'change' do input de arquivo
+// Ele irá apenas atualizar o nome do arquivo selecionado no campo de texto
+document.getElementById('arquivo_relatorio').addEventListener('change', function() {
+    const fileName = this.files[0] ? this.files[0].name : 'Nenhum arquivo escolhido';
+    document.getElementById('nome-arquivo-selecionado').textContent = fileName;
+});
+
+
+// ... (outras funções do seu script)
+
+const inputRelatorio = document.getElementById('arquivo_relatorio');
+const btnEnviar = document.getElementById('btn-enviar-relatorio');
+const nomeArquivo = document.getElementById('nome-arquivo-selecionado');
+
+inputRelatorio.addEventListener('change', function() {
+    if(this.files.length > 0) {
+        btnEnviar.disabled = false; // ativa o botão
+        nomeArquivo.textContent = this.files[0].name; // mostra nome do arquivo
+    } else {
+        btnEnviar.disabled = true; // desativa caso nenhum arquivo
+        nomeArquivo.textContent = "Nenhum arquivo escolhido";
+    }
+});
+
+// Listener para o envio do relatório
+btnEnviar.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const file = inputRelatorio.files[0];
+    if (!file) {
+        alert("Nenhum arquivo selecionado!");
+        return;
+    }
+
+    // Defina o tamanho dos blocos (em bytes)
+    const chunkSize = 1024 * 1024; // 1MB por bloco
+    const totalChunks = Math.ceil(file.size / chunkSize);
+    let currentChunk = 0;
+    const fileId = `${file.name}-${file.size}-${file.lastModified}`; // ID único para o arquivo
+
+    // Inicia o upload
+    uploadChunk();
+
+    function uploadChunk() {
+        const start = currentChunk * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const chunk = file.slice(start, end);
+
+        const formData = new FormData();
+        formData.append('file_chunk', chunk);
+        formData.append('file_name', file.name);
+        formData.append('file_id', fileId);
+        formData.append('chunk_index', currentChunk);
+        formData.append('total_chunks', totalChunks);
+
+        fetch('../../BackEnd/upload_relatorio.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentChunk++;
+                if (currentChunk < totalChunks) {
+                    console.log(`Bloco ${currentChunk} de ${totalChunks} enviado.`);
+                    // Aumentar o progresso na barra de progresso aqui
+                    uploadChunk(); // Envia o próximo bloco
+                } else {
+                    // O upload completo já foi processado no backend
+                    // Recarrega a página para exibir a nova lista e a mensagem da sessão
+                    window.location.href = 'area_comum_aluno.php?secao=relatorios';
+                }
+            } else {
+                alert('Erro no upload: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição de upload:', error);
+            alert('Erro na requisição: ' + error);
+        });
+    }
+});
+
 function mostrarSecao(secao) {
   // Esconde todas as seções
   document.querySelectorAll('.conteudo').forEach(function (sec) {

@@ -13,6 +13,16 @@ include("../../BackEnd/gerar_alertas.php")
   <link rel="shortcut icon" href="../imgs/IconeProjeto.png" type="image/x-icon" />
   <title>Página do Aluno</title>
 </head>
+<style>
+  .conteudo {
+    display: none;
+  }
+
+  /* Opcional: para garantir que a seção inicial seja exibida sem "flash" */
+  #lista {
+      display: block;
+  }
+</style>
 
 <body>
   <!--barra superior-->
@@ -214,10 +224,12 @@ include("../../BackEnd/gerar_alertas.php")
     <section id="relatorios" class="conteudo bloco-pagina">
       <h3>Envio de Relatórios</h3>
       <!--formulario de envio de arquivos para relatório-->
-      <form action="../../BackEnd/upload_relatorio.php" method="POST" enctype="multipart/form-data">
-        <label for="arquivo_relatorio">Selecione o arquivo do relatório:</label>
-        <input type="file" name="arquivo" id="arquivo_relatorio" required>
-        <button type="submit" class="btn">Enviar Relatório</button>
+      <form id="form-upload-relatorio" action="../../BackEnd/upload_relatorio.php" method="POST" enctype="multipart/form-data">
+          <label for="arquivo_relatorio" class="btn-escolher-arquivo">Escolher arquivo</label>
+          <span id="nome-arquivo-selecionado">Nenhum arquivo escolhido</span>
+          <input type="file" name="arquivo" id="arquivo_relatorio" required>
+          <button type="submit" class="btn" id="btn-enviar-relatorio" disabled>Enviar Relatório</button>
+          
       </form>
     </section>
 

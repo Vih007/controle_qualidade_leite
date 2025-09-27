@@ -3,11 +3,37 @@ require_once 'conexao.php';
 require_once 'ordenar.php';
 
 try {
-    $stmt = $banco->query("SELECT tm.id_teste, tm.id_vaca, v.nome AS nome_vaca, tm.data, tm.resultado, tm.quantas_cruzes, tm.ubere, tm.tratamento, tm.observacoes FROM teste_mastite tm JOIN vacas v ON tm.id_vaca = v.id_vaca");//removido order by para desordenar
+    // Quantidade de testes por página
+    $limite = 10;
+
+    // Página atual (vem da URL, ex: ?pagina=2)
+    $pagina = isset($_GET['pagina_testes']) ? (int)$_GET['pagina_testes'] : 1;
+    if ($pagina < 1) $pagina = 1;
+
+    // Calcula o deslocamento
+    $offset = ($pagina - 1) * $limite;
+
+    // Consulta com LIMIT e OFFSET
+    $sql = "SELECT tm.id_teste, tm.id_vaca, v.nome AS nome_vaca, tm.data, 
+                   tm.resultado, tm.quantas_cruzes, tm.ubere, tm.tratamento, tm.observacoes
+            FROM teste_mastite tm
+            JOIN vacas v ON tm.id_vaca = v.id_vaca
+            LIMIT :limite OFFSET :offset";
+    
+    $stmt = $banco->prepare($sql);
+    $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $testes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //chama o algoritmo de ordenação
+
+    // Conta o total de registros para calcular páginas
+    $total = $banco->query("SELECT COUNT(*) FROM teste_mastite")->fetchColumn();
+    $totalPaginas = ceil($total / $limite);
+
+    // Se você ainda quiser aplicar quicksortPorData (embora o banco já ordene melhor com ORDER BY)
     $testes = quicksortPorData($testes);
 
+    // Exibe os testes
     foreach ($testes as $teste) {
         echo "<tr data-id=\"{$teste['id_teste']}\">";
         echo "<td>" . htmlspecialchars($teste['id_teste']) . "</td>";
@@ -24,6 +50,20 @@ try {
         echo "</td>";
         echo "</tr>";
     }
+
+    // Navegação de páginas
+    echo "<tr><td colspan='9'>";
+    $currentPage = "area_comum_aluno.php"; // mantém na mesma página
+
+    if ($pagina > 1) {
+        echo "<a href='{$currentPage}?secao=teste_mastite&pagina_testes=" . ($pagina - 1) . "'>⬅ Anterior</a> ";
+    }
+    echo "Página $pagina de $totalPaginas";
+    if ($pagina < $totalPaginas) {
+        echo " <a href='{$currentPage}?secao=teste_mastite&pagina_testes=" . ($pagina + 1) . "'>Próxima ➡</a>";
+    }
+    echo "</td></tr>";
+
 } catch (PDOException $e) {
     echo "<tr><td colspan='9'>Erro ao carregar testes de mastite: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
 }

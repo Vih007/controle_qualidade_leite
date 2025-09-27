@@ -240,6 +240,7 @@ header {
 }
 
 /* === ÁREA PRINCIPAL DE CONTEÚDO === */
+
 .conteudo { /* a área onde o conteúdo das seções aparece (lista de vacas, cadastro, etc.) */
   flex: 1; /* ocupa o espaço restante */
   display: flex;
@@ -545,6 +546,82 @@ header {
   text-decoration: none;
 }
 
+/*--- SEÇÃO DE RELATÓRIOS ---*/
+
+/* Estilo para o container do formulário de upload */
+#relatorios form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 500px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+#relatorios label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+#relatorios .btn:disabled {
+    background-color: #cccccc; /* cor cinza para indicar desativado */
+    cursor: not-allowed; /* muda o cursor */
+    pointer-events: none; /* desativa hover/click */
+    box-shadow: none; /* remove sombra */
+    transform: none; /* remove qualquer efeito de hover */
+}
+
+#relatorios .btn:disabled:hover {
+    /* garante que hover não aplique nada */
+    background-color: #cccccc;
+    transform: none;
+}
+
+/* Oculta o input de arquivo padrão */
+#arquivo_relatorio {
+  display: none;
+}
+
+/* Estiliza o botão de "Escolher arquivo" */
+.btn-escolher-arquivo {
+  background-color: var(--cor-destaque2); /* Azul */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: clamp(14px, 1.2vw, 16px);
+}
+
+.btn-escolher-arquivo:hover {
+  background-color: #396ac4; /* Tom mais escuro de azul no hover */
+}
+
+/* Estilo para o texto que mostra o nome do arquivo selecionado */
+#nome-arquivo-selecionado {
+  font-style: italic;
+  color: #666;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  flex-grow: 1; /* Para ocupar o espaço restante na linha */
+}
+
+/* Estilo para o botão de envio */
+#relatorios .btn {
+  font-size: clamp(14px, 1.2vw, 16px);
+  margin-top: 10px;
+}
+
 /* Estilo para a célula de status (Lido/Marcar) */
 .status-celula {
   white-space: nowrap; /* Impede que o conteúdo quebre a linha */
@@ -592,6 +669,56 @@ header {
 #conteudo-alertas td {
   padding: 14px 18px;
   text-align: left;
+}
+
+/* --- PAGINAÇÃO --- */
+
+/* Estilo para a linha que contém a paginação */
+.tabela tr td[colspan='4'] {
+    text-align: center;
+    padding: 20px 10px;
+    font-weight: bold;
+    color: #555; /* Cor para o texto "Página X de Y" */
+}
+
+.tabela tr td[colspan='5'] {
+    text-align: center;
+    padding: 20px 10px;
+    font-weight: bold;
+    color: #555; /* Cor para o texto "Página X de Y" */
+}
+
+.tabela tr td[colspan='9'] {
+    text-align: center;
+    padding: 20px 10px;
+    font-weight: bold;
+    color: #555; /* Cor para o texto "Página X de Y" */
+}
+
+/* Estilo para os links de navegação */
+.tabela tr td a {
+    padding: 8px 16px;
+    border: 2px solid var(--cor-destaque2); /* Borda azul */
+    color: var(--cor-destaque2); /* Cor do texto azul */
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+/* Adiciona um espaço entre os botões e o texto central */
+.tabela tr td a:first-of-type {
+    margin-right: 15px;
+}
+
+.tabela tr td a:last-of-type {
+    margin-left: 15px;
+}
+
+/* Efeito ao passar o mouse sobre os botões */
+.tabela tr td a:hover {
+    background-color: var(--cor-destaque2);
+    color: white;
 }
 
 /* === RESPONSIVIDADE === */
