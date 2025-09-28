@@ -60,6 +60,8 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
         <li><a href="#" onclick="mostrarSecao('alertas')">Alertas</a></li>
         <li><a href="#" onclick="mostrarSecao('alunos')">Alunos</a></li>
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
+        <li><a href="#" onclick="mostrarSecao('relatorio_lotes')">Relatório de Lotes</a></li>
+
       </ul>
     </nav>
 
@@ -136,6 +138,25 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
               </tbody>
             </table>
         </section>
+
+    <section id="relatorio_lotes" class="conteudo">
+      <h3>Relatório de Lotes</h3>
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data</th>
+            <th>Quantidade Total</th>
+            <th>Tanque</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php require("../../BackEnd/relatorio_lotes.php"); ?>
+        </tbody>
+      </table>
+    </section>
+
+
   </main> 
     <script src="script_professor.js"></script>
 </body>

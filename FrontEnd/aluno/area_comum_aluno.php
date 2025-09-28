@@ -62,6 +62,7 @@ include("../../BackEnd/gerar_alertas.php")
         <li><a href="#" onclick="mostrarSecao('producao')">Produção de leite</a></li>
         <li><a href="#" onclick="mostrarSecao('teste_mastite')">Teste de Mastite</a></li>
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
+        <li><a href="#" onclick="mostrarSecao('lotes')">Lotes de leite</a></li>
       </ul>
     </nav>
 
@@ -231,6 +232,55 @@ include("../../BackEnd/gerar_alertas.php")
           <button type="submit" class="btn" id="btn-enviar-relatorio" disabled>Enviar Relatório</button>
           
       </form>
+    </section>
+
+        
+        <section id="lotes" class="conteudo">
+          <h3>Lista de Lotes de Leite</h3>
+          <button onclick="mostrarSecao('cadastro_lote')" class="btn">Cadastrar Novo Lote</button>
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Quantidade Total</th>
+                <th>Tanque</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php require("../../BackEnd/listar_lotes.php"); ?>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="cadastro_lote" class="conteudo bloco-pagina">
+            <h3>Cadastro de Lote</h3>
+            <?php include('../mensagem.php'); ?>
+
+            <!-- Formulário para inserir o lote -->
+            <form class="form-padrao" method="POST" action="../../BackEnd/salvar_lotes.php">
+              <label for="data">Data</label>
+              <input type="date" id="data" name="data" required>
+
+              <label for="quantidade_total">Quantidade Total (litros)</label>
+              <input type="number" id="quantidade_total" name="quantidade_total" step="0.01" placeholder="Digite a quantidade total de litros" required>
+
+              <label for="id_tanque">Tanque</label>
+              <select id="id_tanque" name="id_tanque" required>
+                  <option value="">Selecione um tanque</option>
+                  <?php
+                  // Puxa os tanques do banco
+                  require("../../BackEnd/conexao.php");
+                  $stmt = $banco->query("SELECT id_tanque, localizacao FROM tanque");
+                  $tanques = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                  foreach ($tanques as $t) {
+                      echo "<option value='{$t['id_tanque']}'>{$t['localizacao']}</option>";
+                  }
+                  ?>
+              </select>
+            <button type="submit" class="btn">Cadastrar</button>
+        </form>
     </section>
 
 
