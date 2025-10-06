@@ -59,9 +59,9 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
       <ul>
         <li><a href="#" onclick="mostrarSecao('alertas')">Alertas</a></li>
         <li><a href="#" onclick="mostrarSecao('alunos')">Alunos</a></li>
+        <li><a href="#" onclick="mostrarSecao('gerar_lote_automatico')">Relatório de Lotes</a></li>
+        <li><a href="#" onclick="mostrarSecao('score_saude')">Score de Saúde</a></li>
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
-        <li><a href="#" onclick="mostrarSecao('relatorio_lotes')">Relatório de Lotes</a></li>
-
       </ul>
     </nav>
 
@@ -121,6 +121,14 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
          </section>
 
 
+         <section id="score_saude" class="conteudo">
+            <h3>Relatório de Score de Saúde do Rebanho</h3>
+            <p>Esta seção exibe a pontuação de risco de cada animal (máximo de 100). Scores abaixo de 50 (vermelho) indicam alto risco.</p>
+            <input type="text" id="buscaScore" placeholder="Buscar vaca por nome..." oninput="filtrarScores()" class="input-busca" style="margin-bottom: 20px;">
+            <?php require("../../BackEnd/listar_scores_saude.php"); ?> 
+        </section>
+
+
         <section id="relatorios" class="conteudo">
           <h3>Relatórios Recebidos</h3>
             <table class="tabela" id="id-tabela-vacas">
@@ -139,26 +147,66 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
             </table>
         </section>
 
-    <section id="relatorio_lotes" class="conteudo">
-      <h3>Relatório de Lotes</h3>
-      <table class="tabela">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Data</th>
-            <th>Quantidade Total</th>
-            <th>Tanque</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php require("../../BackEnd/relatorio_lotes.php"); ?>
-        </tbody>
-      </table>
-    </section>
+    <section id="gerar_lote_automatico" class="conteudo bloco-pagina">
+      <form class="form-padrao" id="form-gerar-lote">
+          <label for="data_lote_auto">Data da Produção</label>
+          <input type="date" id="data_lote_auto" name="data" required>
+
+          <label for="id_tanque_auto">Tanque de Destino</label>
+          <select id="id_tanque_auto" name="id_tanque" required>
+              <option value="">Selecione um tanque</option>
+              <?php
+              require_once("../../BackEnd/conexao.php");
+              $stmt = $banco->query("SELECT id_tanque, localizacao FROM tanque ORDER BY localizacao");
+              foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+                  echo "<option value='{$t['id_tanque']}'>" . htmlspecialchars($t['localizacao']) . "</option>";
+              }
+              ?>
+          </select>
+
+          <button type="submit" class="btn">Gerar Lote com Produção Agregada</button>
+      </form>
+
+      <div id="relatorio-unico-container" style="margin-top:20px;"></div>
+  </section>
 
 
   </main> 
     <script src="script_professor.js"></script>
+    <script>
+      document.getElementById("form-gerar-lote").addEventListener("submit", async function(e){
+          e.preventDefault();
+          const form = e.target;
+          const dados = new FormData(form);
+
+          const container = document.getElementById("relatorio-unico-container");
+          container.innerHTML = "Gerando lote...";
+
+          try {
+              const resp = await fetch("../../BackEnd/salvar_lotes.php", {method:"POST", body:dados});
+              const resultado = await resp.json();
+
+              if(resultado.status === "ok") {
+                  container.innerHTML = `
+                    <div class="relatorio-lote">
+                        <h3>Lote Gerado com Sucesso!</h3>
+                        <p><strong>ID do Lote:</strong> ${resultado.lote.id}</p>
+                        <p><strong>Data:</strong> ${resultado.lote.data}</p>
+                        <p><strong>Quantidade Total:</strong> ${resultado.lote.quantidade_total} L</p>
+                        <p><strong>Tanque:</strong> ${resultado.lote.tanque}</p>
+                        <p><strong>Vacas:</strong> ${resultado.lote.vacas}</p>
+                    </div>
+                `;
+                container.style.display = 'block';
+              } else {
+                  container.innerHTML = `<p style="color:red;">Erro: ${resultado.mensagem}</p>`;
+              }
+          } catch(err) {
+              container.innerHTML = `<p style="color:red;">Erro ao gerar lote: ${err.message}</p>`;
+          }
+      });
+    </script>
+
 </body>
 
 </html>

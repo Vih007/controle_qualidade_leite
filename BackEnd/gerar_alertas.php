@@ -1,5 +1,23 @@
 <?php
 require('conexao.php');
+require_once __DIR__ . '/repository/VacaRepository.php';
+require_once __DIR__ . '/service/VacaService.php';
+
+// INÍCIO DO NOVO BLOCO: CALCULAR E ATUALIZAR SCORES
+$vacaRepo = new VacaRepository($banco);
+$vacaService = new VacaService($vacaRepo);
+
+// Busca o ID de todas as vacas (poderia ser otimizado para buscar apenas as alteradas)
+$todas_vacas = $banco->query("SELECT id_vaca FROM vacas")->fetchAll(PDO::FETCH_COLUMN);
+
+foreach ($todas_vacas as $id_vaca) {
+    try {
+        $vacaService->calcularEAtualizarScore((int)$id_vaca);
+    } catch (Exception $e) {
+        // Logar erro, mas não interromper o script
+        error_log("Erro ao calcular score para Vaca ID {$id_vaca}: " . $e->getMessage());
+    }
+}
 
 // Função auxiliar para evitar alertas duplicados
 function alertaExiste($banco, $id_vaca, $mensagem) {

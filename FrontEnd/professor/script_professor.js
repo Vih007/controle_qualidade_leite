@@ -22,12 +22,15 @@ function confirmarSaida() {
 
 // --- 3. Função para abrir seções ---
 function mostrarSecao(secao) {
+  // Esconde tudo
   document.querySelectorAll('.aba-conteudo, .conteudo').forEach(sec => sec.style.display = 'none');
   document.querySelectorAll('nav button.btn').forEach(btn => btn.classList.remove('ativo'));
 
   const elemento = document.getElementById(secao);
   if (elemento) {
     elemento.style.display = 'block';
+    // Salvar a seção ativa no localStorage
+    localStorage.setItem("secaoAtiva", secao);
   }
 }
 
@@ -119,11 +122,8 @@ function marcarComoLido(id, btn) {
       const statusCell = tr.querySelector('.status-celula');
       
       if (statusCell) {
-        // Adiciona o ícone de visualizado e remove o botão
         statusCell.innerHTML = '<span class="icon-visualizado">&#x2714;&#x2714;</span>';
       }
-
-      // Remove o alerta após 2 dias
       setTimeout(() => { tr.remove(); }, 2 * 24 * 60 * 60 * 1000);
     } else {
       alert("Erro ao marcar como lido: " + response.message);
@@ -142,14 +142,13 @@ function carregarAlertas() {
     .then(html => {
       const tbody = document.getElementById('conteudo-alertas');
       if (tbody) {
-        tbody.innerHTML = html; // insere só as linhas
-        adicionarListenersAlerta(); // mantém os botões funcionando
+        tbody.innerHTML = html;
+        adicionarListenersAlerta();
       }
     })
     .catch(error => console.error('Erro ao carregar alertas:', error));
 }
 
-// --- Nova Função: Adiciona os listeners de clique aos botões de alerta ---
 function adicionarListenersAlerta() {
   document.querySelectorAll('.btn-marcar-lido').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -162,13 +161,80 @@ function adicionarListenersAlerta() {
   });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  const formRelatorio = document.getElementById('form-relatorio-lote');
+  const container = document.getElementById('relatorio-unico-container');
+
+  if (formRelatorio) {
+    formRelatorio.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const id = document.getElementById('id_lote').value.trim();
+      if (!id) return;
+
+      fetch('../../BackEnd/relatorio_lote_card.php?id_lote=' + encodeURIComponent(id))
+        .then(resp => resp.text())
+        .then(html => {
+          container.innerHTML = html;
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = "<p><strong>Erro ao gerar relatório.</strong></p>";
+        });
+    });
+  }
+});
+
+// Em FrontEnd/aluno/script_Aluno.js
+
+function filtrarScores() {
+  const input = document.getElementById('buscaScore');
+  const filtro = input.value.toUpperCase();
+  const container = document.querySelector('.cards-scores-container');
+  
+  // Seleciona todos os cards de score
+  const cards = container.getElementsByClassName('score-card'); 
+
+  for (let i = 0; i < cards.length; i++) { 
+    // Busca o nome da vaca dentro do card (tag <h4> com a classe card-nome)
+    const nomeVacaElement = cards[i].querySelector('.card-nome'); 
+
+    if (nomeVacaElement) {
+      const textoNome = nomeVacaElement.textContent || nomeVacaElement.innerText;
+
+      if (textoNome.toUpperCase().indexOf(filtro) > -1) {
+        // Se o nome corresponder, exibe o card (usando 'flex' pois é o display natural dos cards)
+        cards[i].style.display = 'flex'; 
+      } else {
+        // Caso contrário, esconde
+        cards[i].style.display = 'none';
+      }
+    }
+  }
+  
+  // Lógica para esconder a Paginação durante a filtragem
+  const paginacao = document.querySelector('.paginacao-scores');
+  if (paginacao) {
+      if (filtro.length > 0) {
+          paginacao.style.display = 'none';
+      } else {
+          paginacao.style.display = 'block';
+      }
+  }
+}
+
+
 // --- 7. Inicialização ---
 document.addEventListener('DOMContentLoaded', function () {
   console.log("DOM carregado e script_professor.js ativo!");
 
-  // Abre automaticamente a aba de alertas e carrega os dados
-  mostrarSecao('alertas');
-  carregarAlertas();
+  // Recupera a última seção ativa
+  const ultimaSecao = localStorage.getItem("secaoAtiva") || "alertas";
+  mostrarSecao(ultimaSecao);
+
+  // Se for alertas, carrega os dados
+  if (ultimaSecao === "alertas") {
+    carregarAlertas();
+  }
 
   // Botão sair
   const btnSairProf = document.querySelector('button[title="Sair"]');

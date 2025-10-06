@@ -8,7 +8,7 @@ include("../../BackEnd/gerar_alertas.php")
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="imgs/vacaFavicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="../imgs/vacaFavicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="../style/usuarios.css" />
   <link rel="shortcut icon" href="../imgs/IconeProjeto.png" type="image/x-icon" />
   <title>Página do Aluno</title>
@@ -62,7 +62,6 @@ include("../../BackEnd/gerar_alertas.php")
         <li><a href="#" onclick="mostrarSecao('producao')">Produção de leite</a></li>
         <li><a href="#" onclick="mostrarSecao('teste_mastite')">Teste de Mastite</a></li>
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
-        <li><a href="#" onclick="mostrarSecao('lotes')">Lotes de leite</a></li>
       </ul>
     </nav>
 
@@ -83,6 +82,7 @@ include("../../BackEnd/gerar_alertas.php")
           <tr>
             <th>ID</th>
             <th>Nome</th>
+            <th>Lote Manejo</th>
             <th>Descarte</th>
             <th>Ações</th>
           </tr>
@@ -100,6 +100,25 @@ include("../../BackEnd/gerar_alertas.php")
       <form class="form-padrao" method="POST" action="../../BackEnd/inserir_vaca.php">
         <label for="nome">Nome</label>
         <input type="text" id="nome" name="nome" placeholder="Digite o nome da vaca" required>
+        
+        <label for="id_lote_manejo">Lote de Manejo</label>
+        <select id="id_lote_manejo" name="id_lote_manejo" required>
+            <option value="">Selecione o Lote</option>
+            <?php
+            // Inclui a conexão para buscar os lotes de manejo
+            require_once("../../BackEnd/conexao.php");
+            try {
+                $stmt_lotes = $banco->query("SELECT id_lote_manejo, nome_lote FROM lote_manejo ORDER BY nome_lote");
+                $lotes_manejo = $stmt_lotes->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($lotes_manejo as $lote) {
+                    echo "<option value='{$lote['id_lote_manejo']}'>" . htmlspecialchars($lote['nome_lote']) . "</option>";
+                }
+            } catch (PDOException $e) {
+                echo "<option value='' disabled>Erro ao carregar lotes: " . htmlspecialchars($e->getMessage()) . "</option>";
+            }
+            ?>
+        </select>
+
         <button type="submit" class="btn">Cadastrar</button>
       </form>
     </section>
@@ -116,6 +135,7 @@ include("../../BackEnd/gerar_alertas.php")
             <th>ID</th>
             <th>ID Vaca</th>
             <th>Quantidade</th>
+            <th>Tanque</th>
             <th>Data</th>
             <th>Ações</th>
           </tr>
@@ -140,6 +160,26 @@ include("../../BackEnd/gerar_alertas.php")
         <input type="date" id="data_producao" name="data" required>
         <label for="quantidade_producao">Quantidade (litros):</label>
         <input type="number" id="quantidade_producao" name="quantidade" step="0.1" required>
+        
+        <label for="id_tanque_producao">Tanque de Destino</label>
+        <select id="id_tanque_producao" name="id_tanque" required>
+            <option value="">Selecione o Tanque</option>
+            <?php
+            // Inclui a conexão para buscar os tanques
+            require_once("../../BackEnd/conexao.php");
+            try {
+                // Assume-se que existe uma tabela 'tanque' com colunas 'id_tanque' e 'localizacao'
+                $stmt_tanques = $banco->query("SELECT id_tanque, localizacao FROM tanque ORDER BY localizacao");
+                $tanques = $stmt_tanques->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($tanques as $tanque) {
+                    echo "<option value='{$tanque['id_tanque']}'>" . htmlspecialchars($tanque['localizacao']) . "</option>";
+                }
+            } catch (PDOException $e) {
+                echo "<option value='' disabled>Erro ao carregar tanques: " . htmlspecialchars($e->getMessage()) . "</option>";
+            }
+            ?>
+        </select>
+        
         <button type="submit" class="btn">Cadastrar</button>
       </form>
     </section>
@@ -233,56 +273,6 @@ include("../../BackEnd/gerar_alertas.php")
           
       </form>
     </section>
-
-        
-        <section id="lotes" class="conteudo">
-          <h3>Lista de Lotes de Leite</h3>
-          <button onclick="mostrarSecao('cadastro_lote')" class="btn">Cadastrar Novo Lote</button>
-          <table class="tabela">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Data</th>
-                <th>Quantidade Total</th>
-                <th>Tanque</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php require("../../BackEnd/listar_lotes.php"); ?>
-            </tbody>
-          </table>
-        </section>
-
-        <section id="cadastro_lote" class="conteudo bloco-pagina">
-            <h3>Cadastro de Lote</h3>
-            <?php include('../mensagem.php'); ?>
-
-            <!-- Formulário para inserir o lote -->
-            <form class="form-padrao" method="POST" action="../../BackEnd/salvar_lotes.php">
-              <label for="data">Data</label>
-              <input type="date" id="data" name="data" required>
-
-              <label for="quantidade_total">Quantidade Total (litros)</label>
-              <input type="number" id="quantidade_total" name="quantidade_total" step="0.01" placeholder="Digite a quantidade total de litros" required>
-
-              <label for="id_tanque">Tanque</label>
-              <select id="id_tanque" name="id_tanque" required>
-                  <option value="">Selecione um tanque</option>
-                  <?php
-                  // Puxa os tanques do banco
-                  require("../../BackEnd/conexao.php");
-                  $stmt = $banco->query("SELECT id_tanque, localizacao FROM tanque");
-                  $tanques = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                  foreach ($tanques as $t) {
-                      echo "<option value='{$t['id_tanque']}'>{$t['localizacao']}</option>";
-                  }
-                  ?>
-              </select>
-            <button type="submit" class="btn">Cadastrar</button>
-        </form>
-    </section>
-
 
   </main>
   <script src="script_Aluno.js"></script>

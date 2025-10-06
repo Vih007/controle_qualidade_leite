@@ -25,10 +25,6 @@ try {
             echo "<td class='data-lote'>{$lote['data_lote']}</td>";         // ajustado
             echo "<td class='quantidade-lote'>{$lote['quantidade_total']} L</td>"; // ajustado
             echo "<td class='tanque-lote'>{$lote['tanque']}</td>";         // já bate com JS
-            echo "<td class='acoes'>
-                    <button class='btn-editar' onclick='editarLote(this)'>Editar</button>
-                    <button class='btn-excluir' onclick='excluirLote({$lote['id_lote']}, this)'>Excluir</button>
-                  </td>";
             echo "</tr>";
         }
     } else {

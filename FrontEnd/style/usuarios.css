@@ -546,6 +546,32 @@ header {
   text-decoration: none;
 }
 
+#relatorio-unico-container {
+    display: none;
+    margin-top: 20px;
+    padding: 20px; /* Espaço interno */
+    border: 1px solid #ccc; /* Borda cinza clara */
+    border-radius: 10px; /* Cantos arredondados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    background-color: #f9f9f9; /* Fundo claro */
+    font-family: Arial, sans-serif; /* Fonte agradável */
+    max-width: 600px; /* Largura máxima */
+    margin-left: auto;
+    margin-right: auto; /* Centralizar horizontalmente */
+}
+
+#relatorio-unico-container h3 {
+    color: #000000;
+    margin-bottom: 15px;
+}
+
+#relatorio-unico-container p {
+    color: #000000;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+
 /*--- SEÇÃO DE RELATÓRIOS ---*/
 
 /* Estilo para o container do formulário de upload */
@@ -669,6 +695,128 @@ header {
 #conteudo-alertas td {
   padding: 14px 18px;
   text-align: left;
+}
+
+/* --- NOVO CSS PARA VISUALIZAÇÃO DE SCORES (ADICIONAR EM usuarios.css) --- */
+
+.cards-scores-container {
+    display: grid;
+    /* Layout responsivo: 2 colunas em desktop, 1 em mobile/telas menores */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.score-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #eee;
+}
+
+.score-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    padding: 15px 20px 10px;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header .card-nome {
+    font-size: 1.5rem;
+    color: #020202;
+    margin: 5px 0 0;
+}
+
+.card-body {
+    padding: 15px 20px;
+    font-size: 1em;
+    color: #020202;
+}
+
+.card-score-box {
+    padding: 15px 20px;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* Empurra para o final do card */
+}
+
+.card-score-valor {
+    font-size: 2rem;
+    padding: 5px 15px;
+    border-radius: 8px;
+    background-color: rgba(9, 9, 9, 0.2);
+}
+
+/* Estilos Condicionais (Classes de Cor) */
+.score-card.score-alto {
+    /* Score >= 80 */
+    background-color: var(--cor-destaque1); /* Verde */
+    color: white;
+}
+.score-card.score-alto .card-header {
+    background-color: #b7e04f; /* Tom mais claro de verde */
+}
+.score-card.score-alto .card-body {
+    color: #f5ffdc; /* Texto mais claro */
+}
+
+
+.score-card.score-medio {
+    /* 50 <= Score < 80 */
+    background-color: #ffc107; /* Amarelo */
+    color: #333;
+}
+.score-card.score-medio .card-header {
+    background-color: #ffe082; /* Tom mais claro de amarelo */
+}
+
+.score-card.score-baixo {
+    /* Score < 50 */
+    background-color: #dc3545; /* Vermelho */
+    color: white;
+}
+.score-card.score-baixo .card-header {
+    background-color: #e46e7b; /* Tom mais claro de vermelho */
+}
+
+/* Estilo para a Paginação na nova seção */
+.paginacao-scores {
+    text-align: center;
+    padding: 20px 0;
+    width: 100%;
+}
+.paginacao-scores a {
+    padding: 8px 16px;
+    border: 2px solid var(--cor-destaque2);
+    color: var(--cor-destaque2);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.paginacao-scores a:hover {
+    background-color: var(--cor-destaque2);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .cards-scores-container {
+        /* Garante que o layout seja sempre uma coluna em telas pequenas */
+        grid-template-columns: 1fr;
+    }
 }
 
 /* --- PAGINAÇÃO --- */
