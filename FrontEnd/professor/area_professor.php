@@ -57,11 +57,11 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
     <nav class="menu-lateral">
       <h2>Comandos</h2>
       <ul>
-        <li><a href="#" onclick="mostrarSecao('alertas')">Alertas</a></li>
-        <li><a href="#" onclick="mostrarSecao('alunos')">Alunos</a></li>
-        <li><a href="#" onclick="mostrarSecao('gerar_lote_automatico')">Relatório de Lotes</a></li>
-        <li><a href="#" onclick="mostrarSecao('score_saude')">Score de Saúde</a></li>
-        <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
+        <li><a href="#" id="link-alertas" data-secao="alertas">Alertas</a></li>
+        <li><a href="#" id="link-alunos" data-secao="alunos">Alunos</a></li>
+        <li><a href="#" id="link-lotes" data-secao="gerar_lote_automatico">Relatório de Lotes</a></li>
+        <li><a href="#" id="link-score" data-secao="score_saude">Score de Saúde</a></li>
+        <li><a href="#" id="link-relatorios" data-secao="relatorios">Relatórios</a></li>
       </ul>
     </nav>
 
@@ -172,41 +172,8 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
 
 
   </main> 
-    <script src="script_professor.js"></script>
-    <script>
-      document.getElementById("form-gerar-lote").addEventListener("submit", async function(e){
-          e.preventDefault();
-          const form = e.target;
-          const dados = new FormData(form);
 
-          const container = document.getElementById("relatorio-unico-container");
-          container.innerHTML = "Gerando lote...";
-
-          try {
-              const resp = await fetch("../../BackEnd/salvar_lotes.php", {method:"POST", body:dados});
-              const resultado = await resp.json();
-
-              if(resultado.status === "ok") {
-                  container.innerHTML = `
-                    <div class="relatorio-lote">
-                        <h3>Lote Gerado com Sucesso!</h3>
-                        <p><strong>ID do Lote:</strong> ${resultado.lote.id}</p>
-                        <p><strong>Data:</strong> ${resultado.lote.data}</p>
-                        <p><strong>Quantidade Total:</strong> ${resultado.lote.quantidade_total} L</p>
-                        <p><strong>Tanque:</strong> ${resultado.lote.tanque}</p>
-                        <p><strong>Vacas:</strong> ${resultado.lote.vacas}</p>
-                    </div>
-                `;
-                container.style.display = 'block';
-              } else {
-                  container.innerHTML = `<p style="color:red;">Erro: ${resultado.mensagem}</p>`;
-              }
-          } catch(err) {
-              container.innerHTML = `<p style="color:red;">Erro ao gerar lote: ${err.message}</p>`;
-          }
-      });
-    </script>
-
+  <script src="script_professor.js"></script>
 </body>
 
 </html>

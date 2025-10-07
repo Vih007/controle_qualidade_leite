@@ -1,3 +1,8 @@
+console.log("JS foi carregado!");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM carregado!");
+});
+
 // --- 1. Controle do menu de perfil (dropdown) ---
 const botaoPerfilProf = document.getElementById('btnPerfil');
 const menuPerfilProf = document.getElementById('menuPerfil');
@@ -227,6 +232,9 @@ function filtrarScores() {
 document.addEventListener('DOMContentLoaded', function () {
   console.log("DOM carregado e script_professor.js ativo!");
 
+  // **NOVO:** Configura a navegação
+  configurarMenuNavegacao();
+
   // Recupera a última seção ativa
   const ultimaSecao = localStorage.getItem("secaoAtiva") || "alertas";
   mostrarSecao(ultimaSecao);
@@ -246,3 +254,48 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+function configurarMenuNavegacao() {
+    // Adiciona o listener de clique a todos os links do menu lateral
+    document.querySelectorAll('.menu-lateral a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const secaoAlvo = this.getAttribute('data-secao');
+            if (secaoAlvo) {
+                mostrarSecao(secaoAlvo);
+            }
+        });
+    });
+}
+
+    document.getElementById("form-gerar-lote").addEventListener("submit", async function(e){
+          e.preventDefault();
+          const form = e.target;
+          const dados = new FormData(form);
+
+          const container = document.getElementById("relatorio-unico-container");
+          container.innerHTML = "Gerando lote...";
+
+          try {
+              const resp = await fetch("../../BackEnd/salvar_lotes.php", {method:"POST", body:dados});
+              const resultado = await resp.json();
+
+              if(resultado.status === "ok") {
+                  container.innerHTML = `
+                    <div class="relatorio-lote">
+                        <h3>Lote Gerado com Sucesso!</h3>
+                        <p><strong>ID do Lote:</strong> ${resultado.lote.id}</p>
+                        <p><strong>Data:</strong> ${resultado.lote.data}</p>
+                        <p><strong>Quantidade Total:</strong> ${resultado.lote.quantidade_total} L</p>
+                        <p><strong>Tanque:</strong> ${resultado.lote.tanque}</p>
+                        <p><strong>Vacas:</strong> ${resultado.lote.vacas}</p>
+                    </div>
+                `;
+                container.style.display = 'block';
+              } else {
+                  container.innerHTML = `<p style="color:red;">Erro: ${resultado.mensagem}</p>`;
+              }
+          } catch(err) {
+              container.innerHTML = `<p style="color:red;">Erro ao gerar lote: ${err.message}</p>`;
+          }
+      });
