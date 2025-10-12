@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../../BackEnd/gerar_alertas.php")
+include("../../BackEnd/gerar_alertas.php");
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -18,10 +18,6 @@ include("../../BackEnd/gerar_alertas.php")
     display: none;
   }
 
-  /* Opcional: para garantir que a seção inicial seja exibida sem "flash" */
-  #lista {
-      display: block;
-  }
 </style>
 
 <body>

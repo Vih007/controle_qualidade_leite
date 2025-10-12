@@ -3,6 +3,13 @@ require_once 'conexao.php';
 require_once 'ordenar.php'; 
 require_once __DIR__ . '/repository/ProducaoLeiteRepository.php';
 require_once __DIR__ . '/service/ProducaoLeiteService.php';
+
+// Tática de Detecção de Falhas: Protege contra a conexão nula
+if (is_null($banco)) {
+    echo "<tr><td colspan='6'><strong>Erro: Conexão com o Banco de Dados indisponível.</strong></td></tr>";
+    return;
+}
+
 try {
     $limite = 10;
     $pagina = isset($_GET['pagina_producao']) ? (int)$_GET['pagina_producao'] : 1;
@@ -26,7 +33,7 @@ try {
         echo "<td>" . htmlspecialchars($producao['id_producao']) . "</td>";
         echo "<td>" . htmlspecialchars($producao['nome_vaca']) . " (ID: " . htmlspecialchars($producao['id_vaca']) . ")</td>";
         echo "<td class=\"quantidade-producao\">" . htmlspecialchars($producao['quantidade']) . " L</td>";
-        echo "<td>" . htmlspecialchars($producao['nome_tanque'] ?? 'N/A') . "</td>"; // NOVO: Tanque
+        echo "<td>" . htmlspecialchars($producao['nome_tanque'] ?? 'N/A') . "</td>";
         echo "<td class=\"data-producao\">" . date('d/m/Y H:i', strtotime($producao['data'])) . "</td>";
         echo "<td>";
         echo "<button onclick=\"editarProducao(this)\" class=\"btn-editar\">Editar</button>";

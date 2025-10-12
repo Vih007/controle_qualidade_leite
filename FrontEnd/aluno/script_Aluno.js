@@ -534,45 +534,82 @@ btnEnviar.addEventListener('click', function (e) {
 });
 
 
-function mostrarSecao(secao) {
-  // Esconde todas as seções
-  document.querySelectorAll('.conteudo').forEach(function (sec) {
-    sec.style.display = 'none';
-  });
 
-  // Mostra a seção desejada
-  const secaoAlvo = document.getElementById(secao);
-  secaoAlvo.style.display = 'block';
+// [NOVA FUNÇÃO] - Responsável por carregar o conteúdo PHP dinamicamente via AJAX
+function carregarConteudoDaSecao(secao) {
+  let url = '';
+  let tbodySelector = '';
 
-  // Se for a seção de cadastro de produção ou teste, configure o datalist
-  if (secao === 'cadastro_producao') {
-    setupDatalistInput('vaca_producao_nome', 'id_vaca_producao_hidden');
-  } else if (secao === 'cadastro_teste') {
-    setupDatalistInput('vaca_teste_nome', 'id_vaca_teste_hidden');
+  if (secao === 'lista') {
+    url = '../../BackEnd/listar_vacas.php?pagina_vacas=1';
+    tbodySelector = '#id-tabela-vacas tbody';
+  } else if (secao === 'producao') {
+    url = '../../BackEnd/listar_producao_leite.php?pagina_producao=1';
+    tbodySelector = '#id-tabela-producao tbody';
+  } else if (secao === 'teste_mastite') {
+    url = '../../BackEnd/listar_teste_mastite.php?pagina_testes=1';
+    tbodySelector = '#id-tabela-teste tbody';
   }
 
-  // Se houver uma mensagem global, move ela para o topo da seção ativa
-  const mensagem = document.getElementById('mensagem-global');
-  if (mensagem && secaoAlvo) {
-    secaoAlvo.prepend(mensagem);
-  }
-
-  // Remove a mensagem se ainda existir após 4 segundos
-  if (mensagem) {
-    setTimeout(() => {
-      mensagem.remove();
-    }, 5000);
+  if (url && tbodySelector) {
+    fetch(url)
+      .then(response => response.text())
+      .then(html => {
+        document.querySelector(tbodySelector).innerHTML = html;
+      })
+      .catch(error => {
+        console.error('Erro ao carregar conteúdo da seção:', error);
+        document.querySelector(tbodySelector).innerHTML = '<tr><td colspan="9">Falha ao carregar dados. Verifique o servidor.</td></tr>';
+      });
   }
 }
 
-// Garante que a seção correta está visível e carrega o datalist
+// [FUNÇÃO MOSTRARSECAO ATUALIZADA]
+function mostrarSecao(secao) {
+    // Esconder todas as seções
+    document.querySelectorAll('.conteudo').forEach(function (sec) {
+        sec.style.display = 'none';
+    });
+
+    // Mostrar apenas a seção desejada
+    const secaoAlvo = document.getElementById(secao);
+    secaoAlvo.style.display = 'block';
+
+    // Se for uma lista, carregar o conteúdo via AJAX
+    if (secao === 'lista' || secao === 'producao' || secao === 'teste_mastite') {
+        carregarConteudoDaSecao(secao);
+    }
+    
+    // Se for a seção de cadastro de produção ou teste, configure o datalist
+    if (secao === 'cadastro_producao') {
+        setupDatalistInput('vaca_producao_nome', 'id_vaca_producao_hidden');
+    } else if (secao === 'cadastro_teste') {
+        setupDatalistInput('vaca_teste_nome', 'id_vaca_teste_hidden');
+    }
+
+    // Se houver uma mensagem global, move ela para o topo da seção ativa
+    const mensagem = document.getElementById('mensagem-global');
+    if (mensagem && secaoAlvo) {
+        secaoAlvo.prepend(mensagem);
+    }
+
+    // Remove a mensagem se ainda existir após 4 segundos
+    if (mensagem) {
+        setTimeout(() => {
+            mensagem.remove();
+        }, 5000);
+    }
+}
+
+
+// [FUNÇÃO WINDOW.ONLOAD ATUALIZADA]
 window.onload = function () {
   const params = new URLSearchParams(window.location.search);
   const secao = params.get('secao');
-  if (secao) {
-    mostrarSecao(secao);
-  } else {
-    mostrarSecao('lista'); // Default para a lista de vacas
-  }
-  carregarNomesVacasDatalist(); // CHAMADA ADICIONADA AQUI PARA GARANTIR O CARREGAMENTO INICIAL
+  
+  // Define 'lista' (Vacas) como padrão se não houver parâmetro na URL
+  const secaoInicial = secao || 'lista'; 
+  
+  mostrarSecao(secaoInicial); 
+  carregarNomesVacasDatalist(); 
 };

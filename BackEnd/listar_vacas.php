@@ -3,6 +3,13 @@ require("conexao.php");
 require_once __DIR__ . '/repository/VacaRepository.php'; 
 require_once __DIR__ . '/service/VacaService.php';
 
+// Tática de Detecção de Falhas: Protege contra a conexão nula
+if (is_null($banco)) {
+    echo "<tr><td colspan='5'><strong>Erro: Conexão com o Banco de Dados indisponível.</strong></td></tr>";
+    // Exibimos esta mensagem e o script termina, impedindo o fatal error.
+    return;
+}
+
 try {
     $limite = 10;
     $pagina = isset($_GET['pagina_vacas']) ? (int)$_GET['pagina_vacas'] : 1;
@@ -22,7 +29,7 @@ try {
             echo "<tr data-id='{$vaca['id_vaca']}'>";
             echo "<td>{$vaca['id_vaca']}</td>";
             echo "<td class='nome-vaca'>{$vaca['nome']}</td>";
-            echo "<td>" . htmlspecialchars($vaca['nome_lote'] ?? 'N/A') . "</td>"; // NOVO: Lote de Manejo
+            echo "<td>" . htmlspecialchars($vaca['nome_lote'] ?? 'N/A') . "</td>";
             echo "<td>{$vaca['descarte']}</td>";
             echo "<td class='acoes'>";
             echo "<button class='btn-editar' onclick='editarVaca(this)'>Editar</button>";
