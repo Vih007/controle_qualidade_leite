@@ -12,16 +12,14 @@ include("../../BackEnd/gerar_alertas.php");
   <link rel="stylesheet" href="../style/usuarios.css" />
   <link rel="shortcut icon" href="../imgs/IconeProjeto.png" type="image/x-icon" />
   <title>Página do Aluno</title>
+  <style>
+    .conteudo {
+      display: none;
+    }
+  </style>
 </head>
-<style>
-  .conteudo {
-    display: none;
-  }
-
-</style>
 
 <body>
-  <!--barra superior-->
   <div class="faixa-decorada"></div>
   <header id="menu">
     <div class="logo-container">
@@ -31,12 +29,10 @@ include("../../BackEnd/gerar_alertas.php");
         <h2 class="barlow-regular">Controle de Qualidade do Leite</h2>
       </div>
     </div>
-    <!--botões de logout e informações do perfil-->
     <div class="caixa-perfil">
       <button id="btnPerfil" title="<?php echo htmlspecialchars($_SESSION['nome'] ?? 'Usuário'); ?>">
         <img src="../imgs/perfil.png" alt="Perfil de <?php echo htmlspecialchars($_SESSION['nome'] ?? 'usuário'); ?>">
       </button>
-      <!-- caixa flutuando com informações do usuario logado-->
       <section id="menuPerfil" class="info-do-usuario" style="display: none;">
         <p><strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Sem nome'); ?></strong></p>
         <p><?php echo htmlspecialchars($_SESSION['email'] ?? 'Sem email'); ?></p>
@@ -49,7 +45,6 @@ include("../../BackEnd/gerar_alertas.php");
   </header>
   <div class="faixa-decorada"></div>
 
-  <!--Menu de comandos-->
   <main class="painel">
     <nav class="menu-lateral">
       <h2>Comandos</h2>
@@ -61,16 +56,18 @@ include("../../BackEnd/gerar_alertas.php");
       </ul>
     </nav>
 
+    <!-- Seção Lista de Vacas -->
     <section id="lista" class="conteudo">
-      <!--Mensagem de bem vindo com o nome do usuario logado-->
       <?php if (isset($_SESSION['mensagem'])): ?>
         <p class="mensagem" role="alert" id="mensagem-global"><?= $_SESSION['mensagem']; ?></p>
-        <?php unset($_SESSION['mensagem']);
-      endif; ?>
+        <?php 
+          unset($_SESSION['mensagem']); 
+        ?>
+      <?php endif; ?>
+
       <h3>Lista de vacas</h3>
-       <!--sistema de busca na lista de vacas-->
       <input type="text" id="buscaVaca" list="vacasNomesDatalist" placeholder="Buscar por nome..."
-        oninput="filtrarVacasTabela()" class="input-busca">
+             oninput="filtrarVacasTabela()" class="input-busca">
       <datalist id="vacasNomesDatalist"></datalist>
       <button onclick="mostrarSecao('cadastro')" class="btn">Cadastrar Nova Vaca</button>
       <table class="tabela" id="id-tabela-vacas">
@@ -84,46 +81,47 @@ include("../../BackEnd/gerar_alertas.php");
           </tr>
         </thead>
         <tbody>
-          <?php require("../../BackEnd/listar_vacas.php") ?>
         </tbody>
       </table>
     </section>
-    
+
+    <!-- Seção Cadastro de Vaca -->
     <section id="cadastro" class="conteudo bloco-pagina">
       <h3>Cadastro de vaca</h3>
-      <!--formulario de cadastro de vacas-->
-      <?php include('../mensagem.php') ?> <!-- inclue mensagem de vaca cadastrada com sucesso ou não-->
+      <?php include('../mensagem.php'); ?>
       <form class="form-padrao" method="POST" action="../../BackEnd/inserir_vaca.php">
         <label for="nome">Nome</label>
         <input type="text" id="nome" name="nome" placeholder="Digite o nome da vaca" required>
         
         <label for="id_lote_manejo">Lote de Manejo</label>
         <select id="id_lote_manejo" name="id_lote_manejo" required>
-            <option value="">Selecione o Lote</option>
-            <?php
-            // Inclui a conexão para buscar os lotes de manejo
-            require_once("../../BackEnd/conexao.php");
+          <option value="">Selecione o Lote</option>
+          <?php
+          require_once("../../BackEnd/conexao.php");
+          if (!is_null($banco)) { 
             try {
-                $stmt_lotes = $banco->query("SELECT id_lote_manejo, nome_lote FROM lote_manejo ORDER BY nome_lote");
-                $lotes_manejo = $stmt_lotes->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($lotes_manejo as $lote) {
-                    echo "<option value='{$lote['id_lote_manejo']}'>" . htmlspecialchars($lote['nome_lote']) . "</option>";
-                }
+              $stmt_lotes = $banco->query("SELECT id_lote_manejo, nome_lote FROM lote_manejo ORDER BY nome_lote");
+              $lotes_manejo = $stmt_lotes->fetchAll(PDO::FETCH_ASSOC);
+              foreach ($lotes_manejo as $lote) {
+                echo "<option value='{$lote['id_lote_manejo']}'>" . htmlspecialchars($lote['nome_lote']) . "</option>";
+              }
             } catch (PDOException $e) {
-                echo "<option value='' disabled>Erro ao carregar lotes: " . htmlspecialchars($e->getMessage()) . "</option>";
+              echo "<option value='' disabled>Erro ao carregar lotes: " . htmlspecialchars($e->getMessage()) . "</option>";
             }
-            ?>
+          } else {
+            echo "<option value='' disabled>Erro: Banco indisponível.</option>";
+          }
+          ?>
         </select>
-
         <button type="submit" class="btn">Cadastrar</button>
       </form>
     </section>
 
+    <!-- Seção Produção de Leite -->
     <section id="producao" class="conteudo">
       <h3>Lista de Produção de leite</h3>
-      <!--sistema de busca na produção de leite-->
       <input type="text" id="buscaProducao" list="vacasNomesDatalist" placeholder="Buscar por nome..."
-        onkeyup="filtrarProducao()" class="input-busca">
+             onkeyup="filtrarProducao()" class="input-busca">
       <button onclick="mostrarSecao('cadastro_producao')" class="btn">Cadastrar Produção de Leite</button>
       <table class="tabela" id="id-tabela-producao">
         <thead>
@@ -137,55 +135,54 @@ include("../../BackEnd/gerar_alertas.php");
           </tr>
         </thead>
         <tbody>
-          <?php require("../../BackEnd/listar_producao_leite.php") ?>
         </tbody>
       </table>
     </section>
 
+    <!-- Seção Cadastro de Produção -->
     <section id="cadastro_producao" class="conteudo bloco-pagina">
       <h3>Produção de leite</h3>
-      <?php include('../mensagem.php') ?>
-       <!--formulario de cadastro de producao de leite-->
+      <?php include('../mensagem.php'); ?>
       <form class="form-padrao" method="POST" action="../../BackEnd/cadastrar_producao_leite.php">
         <label for="vaca_producao_nome">Vaca:</label>
         <input type="text" id="vaca_producao_nome" name="vaca_producao_nome" list="vacasNomesDatalist"
-          placeholder="Digite ou selecione a vaca" required>
+               placeholder="Digite ou selecione a vaca" required>
         <input type="hidden" id="id_vaca_producao_hidden" name="id_vaca">
 
         <label for="data_producao">Data:</label>
         <input type="date" id="data_producao" name="data" required>
+
         <label for="quantidade_producao">Quantidade (litros):</label>
         <input type="number" id="quantidade_producao" name="quantidade" step="0.1" required>
         
         <label for="id_tanque_producao">Tanque de Destino</label>
         <select id="id_tanque_producao" name="id_tanque" required>
-            <option value="">Selecione o Tanque</option>
-            <?php
-            // Inclui a conexão para buscar os tanques
-            require_once("../../BackEnd/conexao.php");
+          <option value="">Selecione o Tanque</option>
+          <?php
+          if (!is_null($banco)) { 
             try {
-                // Assume-se que existe uma tabela 'tanque' com colunas 'id_tanque' e 'localizacao'
-                $stmt_tanques = $banco->query("SELECT id_tanque, localizacao FROM tanque ORDER BY localizacao");
-                $tanques = $stmt_tanques->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($tanques as $tanque) {
-                    echo "<option value='{$tanque['id_tanque']}'>" . htmlspecialchars($tanque['localizacao']) . "</option>";
-                }
+              $stmt_tanques = $banco->query("SELECT id_tanque, localizacao FROM tanque ORDER BY localizacao");
+              $tanques = $stmt_tanques->fetchAll(PDO::FETCH_ASSOC);
+              foreach ($tanques as $tanque) {
+                echo "<option value='{$tanque['id_tanque']}'>" . htmlspecialchars($tanque['localizacao']) . "</option>";
+              }
             } catch (PDOException $e) {
-                echo "<option value='' disabled>Erro ao carregar tanques: " . htmlspecialchars($e->getMessage()) . "</option>";
+              echo "<option value='' disabled>Erro ao carregar tanques: " . htmlspecialchars($e->getMessage()) . "</option>";
             }
-            ?>
+          } else {
+            echo "<option value='' disabled>Erro: Banco indisponível.</option>";
+          }
+          ?>
         </select>
-        
         <button type="submit" class="btn">Cadastrar</button>
       </form>
     </section>
 
-
+    <!-- Seção Teste de Mastite -->
     <section id="teste_mastite" class="conteudo">
       <h3>Lista de Teste de Mastite</h3>
-       <!--Busca na area do teste de mastite-->
       <input type="text" id="buscaTeste" list="vacasNomesDatalist" placeholder="Buscar por nome..."
-        onkeyup="filtrarTeste()" class="input-busca">
+             onkeyup="filtrarTeste()" class="input-busca">
       <button onclick="mostrarSecao('cadastro_teste')" class="btn">Cadastrar Teste de Mastite</button>
       <table class="tabela" id="id-tabela-teste">
         <thead>
@@ -202,19 +199,18 @@ include("../../BackEnd/gerar_alertas.php");
           </tr>
         </thead>
         <tbody>
-          <?php require("../../BackEnd/listar_teste_mastite.php") ?>
         </tbody>
       </table>
     </section>
 
+    <!-- Seção Cadastro Teste -->
     <section id="cadastro_teste" class="conteudo bloco-pagina">
       <h3>Cadastro de Teste de Mastite</h3>
-      <?php include('../mensagem.php') ?>
-      <!--formulario do casdastro da mastite-->
+      <?php include('../mensagem.php'); ?>
       <form class="form-padrao" method="POST" action="../../BackEnd/cadastrar_teste_mastite.php">
         <label for="vaca_teste_nome">Vaca:</label>
         <input type="text" id="vaca_teste_nome" name="vaca_teste_nome" list="vacasNomesDatalist"
-          placeholder="Digite ou selecione a vaca" required>
+               placeholder="Digite ou selecione a vaca" required>
         <input type="hidden" id="id_vaca_teste_hidden" name="id_vaca">
 
         <label for="data_teste">Data do Teste:</label>
@@ -258,20 +254,18 @@ include("../../BackEnd/gerar_alertas.php");
       </form>
     </section>
 
+    <!-- Seção Relatórios -->
     <section id="relatorios" class="conteudo bloco-pagina">
       <h3>Envio de Relatórios</h3>
-      <!--formulario de envio de arquivos para relatório-->
       <form id="form-upload-relatorio" action="../../BackEnd/upload_relatorio.php" method="POST" enctype="multipart/form-data">
-          <label for="arquivo_relatorio" class="btn-escolher-arquivo">Escolher arquivo</label>
-          <span id="nome-arquivo-selecionado">Nenhum arquivo escolhido</span>
-          <input type="file" name="arquivo" id="arquivo_relatorio" required>
-          <button type="submit" class="btn" id="btn-enviar-relatorio" disabled>Enviar Relatório</button>
-          
+        <label for="arquivo_relatorio" class="btn-escolher-arquivo">Escolher arquivo</label>
+        <span id="nome-arquivo-selecionado">Nenhum arquivo escolhido</span>
+        <input type="file" name="arquivo" id="arquivo_relatorio" required>
+        <button type="submit" class="btn" id="btn-enviar-relatorio" disabled>Enviar Relatório</button>
       </form>
     </section>
 
   </main>
   <script src="script_Aluno.js"></script>
 </body>
-
 </html>

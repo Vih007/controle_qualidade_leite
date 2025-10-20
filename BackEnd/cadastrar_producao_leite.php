@@ -54,7 +54,7 @@ if (isset($_POST['id_vaca'], $_POST['quantidade'], $_POST['data'], $_POST['id_ta
         exit;
     } else {
         criar_alerta("Erro no banco de dados. Tente novamente mais tarde.", "erro");
-        header("Location: ../FrontEnd/aluno/area_comum_aluno.php?secao=producao");
+        header("Location: ../FrontEnd/aluno/area_comum_aluno.php?secao=cadastro_producao");
         exit;
     }
 
