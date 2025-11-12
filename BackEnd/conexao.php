@@ -1,21 +1,34 @@
 <?php
-$root = "root"; // Usuário do banco de dados
-$sua_senha = ""; // Senha do banco de dados
-$nome_banco = "cql_ifpe1"; // Nome do banco de dados
+// Arquivo: conexao.php
 
-$banco = null; // Inicializa a variável para garantir que ela exista
+// ATENÇÃO: Verifique o caminho. Assume que monitorar_saude.php está no mesmo diretório ou em um caminho acessível.
+require 'monitorar_saude.php'; 
+
+// --- CONFIGURAÇÕES DO BANCO DE DADOS (AJUSTE) ---
+$db_host = 'localhost'; 
+$db_user = 'root'; 
+$db_pass = ''; // Senha do MySQL (vazia por padrão no XAMPP)
+$db_name = 'cql_ifpe1'; // Nome do seu banco de dados
+
+// Variável global de conexão (será um objeto PDO)
+$banco = null;
 
 try {
-    // Cria uma nova conexão PDO com o banco específico e configura charset UTF-8
-    $banco = new PDO("mysql:host=localhost;dbname=$nome_banco;charset=utf8", $root, $sua_senha);
-    // Define o modo padrão de busca como associativo
-    $banco->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    // Configura o PDO para lançar exceções em erros
+    // Tenta conectar
+    $banco = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
     $banco->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //echo "Conexão bem-sucedida";
+    
+    // Opcional: Se a conexão for bem-sucedida, você pode limpar logs antigos aqui, mas a limpeza 
+    // já é tratada dentro da função registrar_e_verificar_falha para simplificar.
 
 } catch (PDOException $e) {
-    // Em ambiente de teste: Apenas registra o erro e continua o script para ser tratado no logar.php
-    error_log("Erro de conexão (teste): " . $e->getMessage()); 
-    // A variável $banco permanece como null
+    
+    // --- LÓGICA DE DETECÇÃO DE DOs (APÓS FALHA) ---
+    // REGISTRA a falha no log e VERIFICA se o limite foi atingido.
+    registrar_e_verificar_falha($e);
+    
+    // Se o limite não foi atingido, apenas exibe o erro padrão e encerra a execução
+    // Isso é feito APENAS se a função registrar_e_verificar_falha não tiver forçado um die(503)
+    die("Falha na conexão com o banco de dados. O sistema pode estar sob sobrecarga. Código: " . $e->getCode());
 }
+?>

@@ -172,7 +172,7 @@ include("../../BackEnd/criar_alerta.php"); // Inclua criar_alerta.php se for usa
 
 
   </main> 
-
+  
   <script src="script_professor.js"></script>
 </body>
 

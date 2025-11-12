@@ -1,97 +1,52 @@
 <?php
-session_start();
-include __DIR__ . "/criar_alerta.php";
 require_once __DIR__ . "/conexao.php";
+session_start();
 
-header('Content-Type: application/json');
-
-// 1. Verifique a requisição para ver se ela é um bloco de upload
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['file_chunk']) || !isset($_POST['file_id'])) {
-    // A requisição inicial do JavaScript precisa ser via POST e ter os dados de chunk.
-    criar_alerta("Requisição inválida.", "erro");
-    echo json_encode(['success' => false, 'message' => 'Requisição inválida. Nenhum bloco de arquivo recebido.']);
-    exit();
+// Verifica se o aluno está logado
+if (!isset($_SESSION['id_usuario'])) {
+    die("Acesso negado. Faça login para enviar relatórios.");
 }
 
-// Defina os diretórios de upload e temporário
-$uploadDir = __DIR__ . '/../../uploads/';
-$tempDir = $uploadDir . 'temp/';
+$idAluno = $_SESSION['id_usuario'];
 
-// Crie os diretórios se não existirem
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0775, true);
-}
-if (!is_dir($tempDir)) {
-    mkdir($tempDir, 0775, true);
+// Caminho físico para salvar os arquivos (dentro de /BackEnd/uploads/)
+$uploadDir = realpath(__DIR__ . '/../uploads') . DIRECTORY_SEPARATOR;
+
+// Cria o diretório caso não exista
+if (!file_exists($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
 }
 
-// Recebe os dados do JavaScript
-$fileId = $_POST['file_id'];
-$fileName = $_POST['file_name'];
-$chunkIndex = (int)$_POST['chunk_index'];
-$totalChunks = (int)$_POST['total_chunks'];
+// Verifica se algum arquivo foi enviado
+if (!isset($_FILES['arquivo']) || $_FILES['arquivo']['error'] !== UPLOAD_ERR_OK) {
+    die("Erro no envio do arquivo.");
+}
 
-$fileTmpPath = $_FILES['file_chunk']['tmp_name'];
-$tempFilePath = $tempDir . $fileId;
+// Garante um nome único para evitar sobrescrita
+$nomeOriginal = basename($_FILES['arquivo']['name']);
+$extensao = pathinfo($nomeOriginal, PATHINFO_EXTENSION);
+$nomeBase = pathinfo($nomeOriginal, PATHINFO_FILENAME);
+$nomeUnico = $nomeBase . "_" . uniqid() . "." . $extensao;
 
-// 3. Salve o bloco: anexe o bloco ao arquivo temporário
-$currentFile = fopen($tempFilePath, 'a');
-$chunk = file_get_contents($fileTmpPath);
-fwrite($currentFile, $chunk);
-fclose($currentFile);
+// Caminho completo do arquivo (físico)
+$caminhoFinal = $uploadDir . $nomeUnico;
 
-// 4. Verifique se é o último bloco
-if ($chunkIndex == $totalChunks - 1) {
-    // 5. O arquivo está completo, processe-o
-    
-    // Validações de tipo de arquivo
-    $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-    $allowedTypes = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png'];
-    
-    if (!in_array($fileType, $allowedTypes)) {
-        unlink($tempFilePath); // Deleta o arquivo temporário
-        // Cria o alerta para ser exibido após o recarregamento
-        criar_alerta("Erro: Somente arquivos PDF, DOC, DOCX, TXT, JPG, JPEG, PNG são permitidos.", "erro");
-        echo json_encode(['success' => false, 'message' => 'Erro: tipo de arquivo não permitido.']);
-        exit();
-    }
+// Move o arquivo para a pasta uploads
+if (move_uploaded_file($_FILES['arquivo']['tmp_name'], $caminhoFinal)) {
+    try {
+        // Salva no banco de dados: nome original, nome salvo e data
+        $stmt = $banco->prepare("
+            INSERT INTO relatorios (nome_arquivo, caminho_arquivo, data_upload, id_aluno)
+            VALUES (?, ?, NOW(), ?)
+        ");
+        $stmt->execute([$nomeOriginal, $nomeUnico, $idAluno]);
 
-    // Move o arquivo completo para o diretório final
-    $finalFileName = uniqid($fileName . '_') . '.' . $fileType;
-    $finalFilePath = $uploadDir . $finalFileName;
-    rename($tempFilePath, $finalFilePath);
-    
-    // 6. Lógica para SALVAR INFORMAÇÕES no Banco de Dados
-    if (isset($banco) && isset($_SESSION['id_usuario'])) {
-        try {
-            $stmt = $banco->prepare("INSERT INTO relatorios (id_aluno, nome_arquivo, caminho_arquivo, data_upload) VALUES (:id_aluno, :nome_original, :nome_salvo, NOW())");
-            $stmt->bindValue(':id_aluno', $_SESSION['id_usuario'], PDO::PARAM_INT);
-            $stmt->bindValue(':nome_original', $fileName, PDO::PARAM_STR);
-            $stmt->bindValue(':nome_salvo', $finalFileName, PDO::PARAM_STR);
-            $stmt->execute();
-            
-            // Define o alerta de sucesso na sessão para ser exibido após o recarregamento
-            criar_alerta("Relatório '{$fileName}' enviado com sucesso!", "sucesso");
-            
-            // Retorne sucesso ao JavaScript para que ele recarregue a página
-            echo json_encode(['success' => true]);
-            exit();
-
-        } catch (PDOException $e) {
-            error_log("Erro ao salvar relatório no DB: " . $e->getMessage());
-            unlink($finalFilePath); // Deleta o arquivo final em caso de erro no DB
-            criar_alerta("Relatório enviado, mas houve um erro ao registrar no sistema. Contate o suporte.", "atencao");
-            echo json_encode(['success' => false, 'message' => 'Erro ao registrar no banco de dados.']);
-            exit();
-        }
-    } else {
-        unlink($finalFilePath);
-        criar_alerta("Relatório enviado, mas o registro no banco de dados não pôde ser feito. Usuário não logado ou erro de conexão.", "atencao");
-        echo json_encode(['success' => false, 'message' => 'Usuário não logado ou erro de conexão.']);
-        exit();
+        echo "Upload realizado com sucesso!";
+    } catch (PDOException $e) {
+        error_log("Erro ao salvar no banco: " . $e->getMessage());
+        echo "Erro ao registrar o relatório no banco.";
     }
 } else {
-    // Se não é o último bloco, retorne sucesso para o JavaScript continuar
-    echo json_encode(['success' => true]);
+    echo "Erro ao mover o arquivo para a pasta de uploads.";
 }
 ?>

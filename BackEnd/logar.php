@@ -1,5 +1,9 @@
 <?php
-session_start();
+// BackEnd/logar.php
+
+// ATENÇÃO: Removemos session_set_cookie_params() daqui para resolver os conflitos de ordem de execução.
+// A segurança será aplicada via setcookie() manual após o login bem-sucedido.
+session_start(); 
 
 require_once __DIR__ . '/conexao.php';
 include __DIR__ . '/criar_alerta.php';
@@ -34,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    // --- INÍCIO DA SOLUÇÃO DE DISPONIBILIDADE: RETRY E EXCEPTION DETECTION ---
+    // --- LÓGICA DE LOGIN COM RETRY E EXCEPTION DETECTION (DISPONIBILIDADE) ---
     $max_db_retries = 3; 
     $db_retries = 0;
     $login_succeeded = false;
@@ -42,17 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db_connection_failed = false;
     $error_message = "Erro no servidor. Tente novamente mais tarde.";
 
-    // Loop de Retry (Tenta 3 vezes a operação de banco de dados)
     while ($db_retries < $max_db_retries && !$login_succeeded) {
         try {
-            // **CORREÇÃO CRÍTICA DO ERRO FATAL:** Se a conexão falhou em conexao.php, $banco será null.
             if (is_null($banco)) {
-                // Forçamos uma PDOException para entrar no catch e tentar novamente.
-                // Isso resolve o erro "Call to a member function prepare() on null".
                 throw new PDOException("Falha na conexão com o banco de dados.");
             }
 
-            // Busca usuário no banco pelo email (PONTO CRÍTICO)
             $stmt = $banco->prepare("SELECT id_usuario, nome, email, senha, tipo_usuario FROM usuarios WHERE email = :email");
             $stmt->bindValue(':email', $email, PDO::PARAM_STR);
             $stmt->execute();
@@ -60,20 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $db_connection_failed = false; 
 
-            // Se a busca deu certo, verifica credenciais
             if ($usuario && password_verify($senha_digitada, $usuario['senha'])) {
                 $login_succeeded = true;
             }
-            break; // Sai do loop se a operação for bem-sucedida
+            break; 
             
         } catch (PDOException $e) {
-            // Captura a PDOException (Falha na Conexão ou Falha Simulada)
             $db_retries++;
             $db_connection_failed = true;
             error_log("Erro de conexão/DB (Tentativa $db_retries/$max_db_retries): " . $e->getMessage());
             
             if ($db_retries < $max_db_retries) {
-                // Aguarda 1 segundo antes de tentar novamente (Tolerância a falhas transientes)
                 sleep(1);
             }
         }
@@ -82,6 +78,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // LÓGICA DE RESPOSTA FINAL
     if ($login_succeeded) {
+        // --- TÁTICA: LIMITAR EXPOSIÇÃO - SOBRESCRITA MANUAL DO COOKIE ---
+        // Garante que o cookie PHPSESSID seja enviado com a flag HttpOnly=true
+        // Isso resolve o problema de o navegador ignorar a configuração de segurança.
+        
+        $session_name = session_name();
+        $session_id = session_id();
+        $session_expire = 0; // Expira ao fechar o navegador
+        $secure = false; // Mantenha 'false' para HTTP local. Em produção, use 'true'.
+        $httponly = true; // A flag crítica para defesa contra XSS/Roubo de Sessão.
+
+        setcookie(
+            $session_name, 
+            $session_id, 
+            $session_expire, 
+            '/', 
+            '', 
+            $secure, 
+            $httponly
+        );
+        // -------------------------------------------------------------------
+
         // Login bem-sucedido: limpa as tentativas e prossegue
         $_SESSION['tentativas'] = 0;
         $_SESSION['bloqueado_ate'] = 0;

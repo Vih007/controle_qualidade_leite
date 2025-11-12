@@ -1,0 +1,13 @@
+# Melhoria 2: Resistencia a Ataques / Limitar Acesso
+
+# 1. Desativa a execução de qualquer script.
+# Define um manipulador nulo (SetHandler none) para todos os arquivos.
+<Files *.*>
+    SetHandler none
+    SetHandler default-handler
+    Options -ExecCGI
+</Files>
+
+# 2. Força o navegador e o servidor a tratarem extensões perigosas como texto puro.
+# Isso impede que, se um atacante subir "shell.php" ou "imagem.jpg.php", o arquivo seja executado.
+AddType text/plain .php .pl .py .jsp .asp .html .shtml .htm .phtml

@@ -20,13 +20,16 @@ $mensagem = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
     $email = $_POST['email'];
 
-    //Busca o usuário com o e-mail informado
+    // TÁTICA: LIMITAR EXPOSIÇÃO - Mensagem genérica para prevenir enumeração
+    $mensagem_generica = "Se o endereço de e-mail estiver cadastrado em nosso sistema, você receberá um link de redefinição em breve.";
+    
+    // Busca o usuário com o e-mail informado
     $stmt = $banco->prepare("SELECT id_usuario FROM usuarios WHERE email = :email");
     $stmt->bindValue(':email', $email);
     $stmt->execute();
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    //Se o usuário existe, gera o token e armazena no banco
+    // Se o usuário existe, tentamos gerar o token e enviar o e-mail
     if ($usuario) {
         $token = bin2hex(random_bytes(16));
         $id_usuario = $usuario['id_usuario'];
@@ -44,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
 
         //Envia o e-mail usando PHPMailer
         $mail = new PHPMailer(true);
-        $mail->CharSet = 'UTF-8'; // Mantendo a melhoria do novo código
+        $mail->CharSet = 'UTF-8';
         try {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
@@ -60,14 +63,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
             $mail->Body = "Clique <a href='$link'>aqui</a> para redefinir sua senha.";
             $mail->send();
 
-            $mensagem = "Email enviado com sucesso para $email.";
+            // A mensagem é definida como a genérica, não confirmando sucesso no envio.
+            $mensagem = $mensagem_generica;
         } catch (Exception $e) {
-            $mensagem = "Erro ao enviar e-mail: {$mail->ErrorInfo}";
+            // Em caso de falha no envio, a mensagem genérica ainda é usada
+            $mensagem = $mensagem_generica;
+            // Opcional: registrar a falha do envio no log do servidor.
+            error_log("Falha no envio de email para {$email}: {$mail->ErrorInfo}");
         }
     } else {
-        $mensagem = "Email não cadastrado.";
+        // Se o usuário não existe, a mensagem genérica é definida.
+        $mensagem = $mensagem_generica;
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Se a requisição foi POST, mas o email estava vazio, define a mensagem genérica (Tática: Limitar Exposição)
     $mensagem = "Informe um email válido.";
 }
 
@@ -89,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
       <?php if (!empty($mensagem)): ?>
         <p class="mensagem"><?php echo htmlspecialchars($mensagem); ?></p> <?php endif; ?>
       <form method="POST"> <label for="email">E-mail</label>
-         <!-- Formulário de recuperação de senha -->
-        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required />
+         <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required />
         <button type="submit" class="btn">Enviar Link</button>
       </form>
       <nav><a href="login.php">Voltar para login</a></nav>
