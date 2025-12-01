@@ -1,4 +1,18 @@
 <?php
+// FrontEnd/login.php
+
+// --- TÁTICA: LIMITAR EXPOSIÇÃO - Configuração de Cookie Seguro ---
+// Esta função DEVE vir antes de session_start() para aplicar as flags de segurança.
+session_set_cookie_params([
+    'lifetime' => 0, // Duração até o fechamento do navegador
+    'path' => '/',
+    // 'secure' => false (0) é usado para ambiente HTTP local (XAMPP/WAMP).
+    // EM PRODUÇÃO (HTTPS), DEVE SER 'true' (1).
+    'secure' => false, 
+    'httponly' => true, // ESSENCIAL: Impede que JavaScript acesse o cookie (Defesa contra Roubo de Sessão/XSS).
+    'samesite' => 'Lax' 
+]);
+
 session_start();
 ?>
 <!DOCTYPE html>
@@ -16,7 +30,6 @@ session_start();
       </figure>
       <h1 class="titulo-recuperacao">Login</h1> <p>Digite os seus dados de acesso no campo abaixo.</p>
       <?php include('mensagem.php'); ?> <form action="../BackEnd/logar.php" method="POST">
-        <!--formulário de login-->
         <label for="email">E-mail</label>
         <input id="email" name="email" type="email" placeholder="Digite seu e-mail" required autofocus />
         <label for="senha">Senha</label>
