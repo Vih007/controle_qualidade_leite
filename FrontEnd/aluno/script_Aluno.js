@@ -20,6 +20,47 @@ function confirmarSaida() {
 
 let vacaNomesParaIds = {};
 
+// NOVA FUNÇÃO: Recarrega a seção atualmente ativa (útil após UNDO)
+function reloadCurrentSection() {
+    // Pega o parâmetro 'secao' da URL ou usa 'lista' como padrão
+    const params = new URLSearchParams(window.location.search);
+    const secao = params.get('secao') || 'lista'; 
+    
+    // Simula o clique na seção para recarregar o conteúdo
+    mostrarSecao(secao); 
+}
+
+// NOVA FUNÇÃO: Tenta reverter a última ação (Chama BackEnd/undo.php)
+function performUndo() {
+    // 1. Confirmação
+    if (!confirm("Tem certeza que deseja desfazer a última ação? Esta ação é irreversível.")) {
+        return;
+    }
+
+    // 2. Requisição ao endpoint de Undo
+    fetch('../../BackEnd/undo.php', { method: 'POST' })
+        .then(response => {
+            // Verifica se a resposta HTTP é OK (código 200)
+            if (!response.ok) {
+                throw new Error(`Erro de rede: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 3. Exibe mensagem ao usuário
+            alert(data.message);
+
+            // 4. Se o undo for bem-sucedido, recarrega a seção atual
+            if (data.success) {
+                reloadCurrentSection();
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição de Undo:', error);
+            alert('Erro ao tentar desfazer. Verifique o console para mais detalhes.');
+        });
+}
+
 // [NOVA FUNÇÃO] - Responsável por carregar o conteúdo PHP dinamicamente via AJAX
 function carregarConteudoDaSecao(secao) {
   let url = '';

@@ -16,6 +16,16 @@ include("../../BackEnd/gerar_alertas.php");
     .conteudo {
       display: none;
     }
+    /* Novo estilo para o botão UNDO */
+    #btn-undo {
+        background-color: #f44336; /* Vermelho */
+        margin-top: 15px; /* Espaçamento após o menu */
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+    }
+    #btn-undo:hover {
+        background-color: #d32f2f;
+    }
   </style>
 </head>
 
@@ -54,6 +64,12 @@ include("../../BackEnd/gerar_alertas.php");
         <li><a href="#" onclick="mostrarSecao('teste_mastite')">Teste de Mastite</a></li>
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
       </ul>
+
+      <!-- NOVO: Botão Desfazer (Undo) -->
+      <button id="btn-undo" class="btn">
+        Desfazer Última Ação (Undo)
+      </button>
+
     </nav>
 
     <!-- Seção Lista de Vacas -->

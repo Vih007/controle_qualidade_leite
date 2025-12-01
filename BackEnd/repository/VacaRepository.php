@@ -80,5 +80,13 @@ class VacaRepository {
         
         return $data;
     }
+
+    // NOVO MÉTODO REQUERIDO PELO COMMAND
+    public function updateNome(int $id_vaca, string $nome): bool {
+        $stmt = $this->banco->prepare("UPDATE vacas SET nome = :nome WHERE id_vaca = :id_vaca");
+        $stmt->bindValue(':nome', $nome);
+        $stmt->bindValue(':id_vaca', $id_vaca, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }
 ?>
