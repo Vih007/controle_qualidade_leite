@@ -99,39 +99,46 @@ function carregarConteudoDaSecao(secao) {
 
 // [FUNÇÃO MOSTRARSECAO FINAL]
 function mostrarSecao(secao) {
-    // Esconder todas as seções
-    document.querySelectorAll('.conteudo').forEach(function (sec) {
-        sec.style.display = 'none';
-    });
+    // CORREÇÃO: Atualiza o URL do navegador para refletir a seção ativa.
+    // Isso é essencial para que o 'Undo' saiba para onde retornar.
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('secao', secao);
+    // Usa history.pushState para mudar o URL (e.g., de ...aluno.php para ...aluno.php?secao=producao)
+    window.history.pushState({ secao: secao }, '', newUrl.toString());
 
-    // Mostrar apenas a seção desejada
-    const secaoAlvo = document.getElementById(secao);
-    secaoAlvo.style.display = 'block';
+    // Esconder todas as seções
+    document.querySelectorAll('.conteudo').forEach(function (sec) {
+        sec.style.display = 'none';
+    });
 
-    // Se for uma lista, carregar o conteúdo via AJAX (AJAX só é executado se for lista)
-    if (secao === 'lista' || secao === 'producao' || secao === 'teste_mastite') {
-        carregarConteudoDaSecao(secao);
-    }
-    
-    // Se for a seção de cadastro de produção ou teste, configure o datalist
-    if (secao === 'cadastro_producao') {
-        setupDatalistInput('vaca_producao_nome', 'id_vaca_producao_hidden');
-    } else if (secao === 'cadastro_teste') {
-        setupDatalistInput('vaca_teste_nome', 'id_vaca_teste_hidden');
-    }
+    // Mostrar apenas a seção desejada
+    const secaoAlvo = document.getElementById(secao);
+    secaoAlvo.style.display = 'block';
 
-    // Se houver uma mensagem global, move ela para o topo da seção ativa
-    const mensagem = document.getElementById('mensagem-global');
-    if (mensagem && secaoAlvo) {
-        secaoAlvo.prepend(mensagem);
-    }
+    // Se for uma lista, carregar o conteúdo via AJAX
+    if (secao === 'lista' || secao === 'producao' || secao === 'teste_mastite') {
+        carregarConteudoDaSecao(secao);
+    }
+    
+    // Se for a seção de cadastro de produção ou teste, configure o datalist
+    if (secao === 'cadastro_producao') {
+        setupDatalistInput('vaca_producao_nome', 'id_vaca_producao_hidden');
+    } else if (secao === 'cadastro_teste') {
+        setupDatalistInput('vaca_teste_nome', 'id_vaca_teste_hidden');
+    }
 
-    // Remove a mensagem se ainda existir após 4 segundos
-    if (mensagem) {
-        setTimeout(() => {
-            mensagem.remove();
-        }, 5000);
-    }
+    // Se houver uma mensagem global, move ela para o topo da seção ativa
+    const mensagem = document.getElementById('mensagem-global');
+    if (mensagem && secaoAlvo) {
+        secaoAlvo.prepend(mensagem);
+    }
+
+    // Remove a mensagem se ainda existir após 4 segundos
+    if (mensagem) {
+        setTimeout(() => {
+            mensagem.remove();
+        }, 5000);
+    }
 }
 
 // NOVA FUNÇÃO: Carregar os nomes e IDs das vacas para o datalist e mapeamento
@@ -685,4 +692,9 @@ window.onload = function () {
   
   mostrarSecao(secaoInicial); 
   carregarNomesVacasDatalist(); 
+
+    const btnUndo = document.getElementById('btn-undo');
+        if (btnUndo) {
+            btnUndo.addEventListener('click', performUndo); // Adiciona o listener de clique
+        }
 };

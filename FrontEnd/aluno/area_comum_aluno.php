@@ -17,15 +17,22 @@ include("../../BackEnd/gerar_alertas.php");
       display: none;
     }
     /* Novo estilo para o botão UNDO */
-    #btn-undo {
-        background-color: #f44336; /* Vermelho */
-        margin-top: 15px; /* Espaçamento após o menu */
-        border-radius: 8px;
-        transition: background-color 0.2s ease;
-    }
-    #btn-undo:hover {
-        background-color: #d32f2f;
-    }
+    .btn-undo-movido {
+    background-color: #f44336 !important; /* Vermelho */
+    border-radius: 10px;
+}
+.btn-undo-movido:hover {
+    background-color: #d32f2f !important; /* Vermelho mais escuro no hover */
+}
+/* Alinhamento do container de botões na seção lista */
+.botoes-acao-lista {
+    display: flex; 
+    gap: 10px; 
+    margin: 15px 0;
+    width: 100%;
+    max-width: 500px;
+    align-self: center;
+}
   </style>
 </head>
 
@@ -65,11 +72,6 @@ include("../../BackEnd/gerar_alertas.php");
         <li><a href="#" onclick="mostrarSecao('relatorios')">Relatórios</a></li>
       </ul>
 
-      <!-- NOVO: Botão Desfazer (Undo) -->
-      <button id="btn-undo" class="btn">
-        Desfazer Última Ação (Undo)
-      </button>
-
     </nav>
 
     <!-- Seção Lista de Vacas -->
@@ -86,6 +88,9 @@ include("../../BackEnd/gerar_alertas.php");
              oninput="filtrarVacasTabela()" class="input-busca">
       <datalist id="vacasNomesDatalist"></datalist>
       <button onclick="mostrarSecao('cadastro')" class="btn">Cadastrar Nova Vaca</button>
+      <button id="btn-undo" class="btn btn-undo-movido">
+            Desfazer Última Ação (Undo)
+        </button>
       <table class="tabela" id="id-tabela-vacas">
         <thead>
           <tr>
@@ -139,6 +144,9 @@ include("../../BackEnd/gerar_alertas.php");
       <input type="text" id="buscaProducao" list="vacasNomesDatalist" placeholder="Buscar por nome..."
              onkeyup="filtrarProducao()" class="input-busca">
       <button onclick="mostrarSecao('cadastro_producao')" class="btn">Cadastrar Produção de Leite</button>
+      <button id="btn-undo" class="btn btn-undo-movido">
+            Desfazer Última Ação (Undo)
+        </button>
       <table class="tabela" id="id-tabela-producao">
         <thead>
           <tr>
@@ -200,6 +208,9 @@ include("../../BackEnd/gerar_alertas.php");
       <input type="text" id="buscaTeste" list="vacasNomesDatalist" placeholder="Buscar por nome..."
              onkeyup="filtrarTeste()" class="input-busca">
       <button onclick="mostrarSecao('cadastro_teste')" class="btn">Cadastrar Teste de Mastite</button>
+      <button id="btn-undo" class="btn btn-undo-movido">
+            Desfazer Última Ação (Undo)
+        </button>
       <table class="tabela" id="id-tabela-teste">
         <thead>
           <tr>
